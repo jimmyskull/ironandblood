@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load staticfiles %}
+    {% load i18n %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static 'xix/favicon.ico' %}" />
+    <title>Iron &amp; Blood</title>
+    <link rel="stylesheet" type="text/css"  href="//fonts.googleapis.com/css?family=Raleway:400,300,600" />
+    <link rel="stylesheet" type="text/css" href="{% static 'xix/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'xix/css/jumbotron.css' %}" />
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Iron &amp; Blood</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right" action="login" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+              <input type="text" name="username" value="" placeholder="Username" class="form-control">
+            </div>
+            <div class="form-group">
+              <input type="password" name="password" value="" placeholder="Password" class="form-control">
+            </div>
+            <button type="submit" value="Submit" class="btn btn-success">Sign in</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+    <div class="jumbotron" style="height: 50vh; background-image: url('https://upload.wikimedia.org/wikipedia/commons/9/98/Munich_Justizpalast_19th_century_Postcard.jpg'); background-position: center; background-size: cover;">
+    </div>
+    <div class="container">
+      <div class="container">
+        {% if state %}
+          <div class="alert alert-{{ alert_type }}">
+            <div class="panel-body">
+              <strong>
+              {% ifequal alert_type 'info' %}
+                {% trans "Info!" %}
+              {% else %}
+                {% trans "Error!" %}
+              {% endifequal %}
+              </strong> {{ state }}</div>
+          </div>
+        {% endif %}
+        <h1><b>Iron &amp; Blood</b> Game</h1>
+        <p>{% trans "The ultimate turn-based fictional XIX century simulator. Play as Privateer, Chartered Company or Head of State." %}</p>
+        <p><a class="btn btn-primary btn-lg" href="#" role="button">{% trans "Learn more &raquo;" %}</a></p>
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <h2>{% trans "Privateer" %}</h2>
+          <p>
+          <img src="https://c2.staticflickr.com/8/7317/11090156415_ab49f89280_z.jpg" alt="1869"  style="width:200px;height:268px;"> </p>
+        </div>
+        <div class="col-md-4">
+          <h2>{% trans "Chartered Company" %}</h2>
+          <p><img src="https://c2.staticflickr.com/6/5498/11238554026_72dc1c2b3e_n.jpg" alt="1860"  style="width:200px;height:268px;"> </p>
+       </div>
+        <div class="col-md-4">
+          <h2>{% trans "Head of State" %}</h2>
+          <p><img src="https://c1.staticflickr.com/3/2894/11005045844_ca39470950_n.jpg" alt="1860"  style="width:200px;height:268px;"> </p>
+        </div>
+      </div>
+      <hr>
+      <footer>
+        <p>&copy; 2016 Kim Jong-Un Fanclub.</p>
+      </footer>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="./assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="{% static 'xix/js/bootstrap.min.js' %}"></script>
+  </body>
+</html>
