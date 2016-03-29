@@ -3,7 +3,7 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^', include('xix.urls')),
+    url(r'^', include('game.urls')),
 ]
 
 admin.site.site_header = 'Iron & Blood administration'

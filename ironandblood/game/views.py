@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 @login_required(login_url='login')
 def index(request):
-  return render(request, 'xix/main.html', {})
+  return render(request, 'game/main.html', {})
 
 @login_required(login_url='login')
 def logout_view(request):
@@ -24,13 +24,13 @@ def login_view(request):
     if user is not None:
       if user.is_active:
         login(request, user)
-        state = _("You’re successfully logged in!")
-        next = request.GET.get('next', '/')
-        return redirect(next)
+        return redirect(request.GET.get('next', '/'))
       else:
+        alert_type = 'danger'
         state = _("Your account is not active, please contact the site admin.")
     else:
       alert_type = 'danger'
       state = _("Your username and/or password were incorrect.")
   context = {'alert_type': alert_type, 'state': state, 'username': username}
-  return render_to_response('xix/auth.html', RequestContext(request, context))
+  return render_to_response('game/login.html', RequestContext(request, context))
+

@@ -7,3 +7,4 @@ urlpatterns = [
     url(r'^logout$', views.logout_view, name='logout'),
     url(r'^$', views.index, name='index'),
 ]
+
