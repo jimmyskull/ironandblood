@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import Sum
 from django.utils.translation import ugettext as _
 
-class ResourceList(models.Model):
+class Resources(models.Model):
   currency = models.IntegerField('Currency', default=0)
   wood1 = models.IntegerField('Wood I', default=0)
   wood2 = models.IntegerField('Wood II', default=0)
@@ -35,10 +35,7 @@ class ResourceList(models.Model):
   sulfur = models.IntegerField('Sulfur', default=0)
   gunpowder = models.IntegerField('Gunpowder', default=0)
 
-  class Meta:
-    abstract = True
-
-class Player(ResourceList):
+class Player(models.Model):
   """
   Player information
 
@@ -69,12 +66,20 @@ class Player(ResourceList):
   """
   user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+  resources = models.OneToOneField(Resources, on_delete=models.CASCADE)
+
   delinquency = models.IntegerField(
     'Delinquent bonds',
     default=0,
     help_text=("Number of delinquent bonds as creditor. The rate of "
       "delinquency (delinquent bonds over total paid bonds) affects the "
       "credit quality of the player."))
+
+  @classmethod
+  def create_player(cls, user):
+    res = Resources()
+    res.save()
+    return cls(user=user, resources=res)
 
   def territories(self):
     """List of territories controlled by the player"""
@@ -155,7 +160,7 @@ class Charter(models.Model):
     # Create the charter, but do not save it yet
     return cls(territory=territory, member=member, size=size)
 
-class Bond(ResourceList):
+class Bond(models.Model):
   """Bond is a debt investment in which an |issuer| loans |resource| to a
   |creditor|.  The creditor agrees to pay the debt in up to |maturity_date|
   turns, except if the bond is a Perpetual Bond (|maturity_date| == 0).
@@ -171,8 +176,12 @@ class Bond(ResourceList):
   )
   # Creditor is the first lender (player) to own the debt
   creditor = models.ForeignKey(User, blank=False, related_name='creditor')
+  creditor_resources = models.OneToOneField(Resources,
+    on_delete=models.CASCADE, related_name='creditor_resources')
   # Issuer is the borrower of the bond
   issuer = models.ForeignKey(User, blank=False, related_name='issuer')
+  issuer_resources = models.OneToOneField(Resources,
+    on_delete=models.CASCADE, related_name='issuer_resources')
   # Maturity date and turns until maturity date
   # If not paid in time, the current creditor increases his delinquency.
   # Delinquency is reached when maturity_date == bond_age,
@@ -182,7 +191,7 @@ class Bond(ResourceList):
   # Debt state
   state = models.CharField(max_length=1, choices=DEBT_STATE, default=PENDING)
 
-class Exchange(ResourceList):
+class Exchange(models.Model):
   """Logging of the Exchange Trading System"""
   WAITING = 'W'
   ACCEPTED = 'A'
@@ -192,10 +201,11 @@ class Exchange(ResourceList):
     (ACCEPTED, 'Accepted'),
     (REJECTED, 'Rejected'),
   )
-  # Oferor information
   offeror = models.ForeignKey(User, related_name='offeror')
-  # Offeree information
+  offeror_resources = models.OneToOneField(Resources,
+    on_delete=models.CASCADE, related_name='offeror_resources')
   offeree = models.ForeignKey(User, related_name='offeree')
-  # Current exchange state
+  offeree_resources = models.OneToOneField(Resources,
+    on_delete=models.CASCADE, related_name='offeree_resources')
   state = models.CharField(max_length=1, choices=NEGOTIATION_STATE,
     default=WAITING)

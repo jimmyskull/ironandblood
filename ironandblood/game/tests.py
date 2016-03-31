@@ -11,7 +11,7 @@ def create_test_game():
       'itsman','loony', 'nazifish', 'pepperpot']
   for name in usernames:
     user = User.objects.create_user(username=name)
-    Player.objects.create(user=user)
+    Player.create_player(user=user).save()
 
   territories = ['Aglax', 'Brierhiel', 'Cesta', 'Drucea', 'Efea', 'Froynia',
       'Gleol', 'Ova', 'Loflurg', 'Prainia', 'Qogrela', 'Smea', 'Uglia']
