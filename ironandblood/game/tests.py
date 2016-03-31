@@ -138,11 +138,8 @@ class ExchangeTestCase(TestCase):
     offeree_r = Resources(wood1=10)
     offeree_r.save()
 
-    exchange = Exchange(
-      offeror=arthur,
-      offeror_resources=offeror_r,
-      offeree=brian,
-      offeree_resources=offeree_r)
+    exchange = Exchange(offeror=arthur, offeror_resources=offeror_r,
+                        offeree=brian,  offeree_resources=offeree_r)
 
     arthur.player.resources.currency = 5
     arthur.player.resources.save()
@@ -194,11 +191,8 @@ class ExchangeTestCase(TestCase):
     offeree_r = Resources(wood1=10)
     offeree_r.save()
 
-    exchange = Exchange(
-      offeror=arthur,
-      offeror_resources=offeror_r,
-      offeree=brian,
-      offeree_resources=offeree_r)
+    exchange = Exchange(offeror=arthur, offeror_resources=offeror_r,
+                        offeree=brian,  offeree_resources=offeree_r)
 
     arthur.player.resources.currency = 0
     arthur.player.resources.save()
@@ -263,11 +257,8 @@ class ExchangeTestCase(TestCase):
     offeree_r = Resources(wood1=10)
     offeree_r.save()
 
-    exchange = Exchange(
-      offeror=arthur,
-      offeror_resources=offeror_r,
-      offeree=brian,
-      offeree_resources=offeree_r)
+    exchange = Exchange(offeror=arthur, offeror_resources=offeror_r,
+                        offeree=brian,  offeree_resources=offeree_r)
 
     self.assertEqual(brian.player.resources.currency, 0)
     self.assertEqual(brian.player.resources.wood1, 11)
@@ -317,11 +308,8 @@ class ExchangeTestCase(TestCase):
     offeree_r = Resources(wood1=0)
     offeree_r.save()
 
-    exchange = Exchange(
-    offeror=arthur,
-    offeror_resources=offeror_r,
-    offeree=arthur,
-    offeree_resources=offeree_r)
+    exchange = Exchange(offeror=arthur, offeror_resources=offeror_r,
+                        offeree=brian,  offeree_resources=offeree_r)
 
     with self.assertRaisesRegexp(ValidationError, "Empty exchange."):
       exchange.offer()
@@ -330,29 +318,152 @@ class ExchangeTestCase(TestCase):
     arthur = User.objects.get(username='arthur')
     brian = User.objects.get(username='brian')
 
-    arthur.player.resources.currency = 1
-    arthur.player.resources.save()
-    brian.player.resources.wood1 = 1
-    brian.player.resources.save()
-
     offeror_r = Resources(currency=1)
     offeror_r.save()
 
     offeree_r = Resources(wood1=1)
     offeree_r.save()
 
-    exchange = Exchange(
-      offeror=arthur,
-      offeror_resources=offeror_r,
-      offeree=arthur,
-      offeree_resources=offeree_r)
+    exchange = Exchange(offeror=arthur, offeror_resources=offeror_r,
+                        offeree=arthur, offeree_resources=offeree_r)
 
     with self.assertRaisesRegexp(ValidationError,
       "Offeror and offeree cannot be the same."):
       exchange.offer()
 
+  def test_simple_donation_accept(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    offeror_r = Resources(currency=1)
+    offeror_r.save()
+
+    exchange = Exchange(offeror=arthur, offeror_resources=offeror_r,
+                        offeree=brian)
+
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.currency, 999)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.accept()
+    self.assertEqual(exchange.state, exchange.ACCEPTED)
+    self.assertEqual(arthur.player.resources.currency, 999)
+    self.assertEqual(brian.player.resources.currency, 1)
+
+  def test_simple_donation_reject(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    offeror_r = Resources(currency=1)
+    offeror_r.save()
+
+    exchange = Exchange(offeror=arthur, offeror_resources=offeror_r,
+                        offeree=brian)
+
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.currency, 999)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.reject()
+    self.assertEqual(exchange.state, exchange.REJECTED)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+
+  def test_simple_donation_cancel(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    offeror_r = Resources(currency=1)
+    offeror_r.save()
+
+    exchange = Exchange(offeror=arthur, offeror_resources=offeror_r,
+                        offeree=brian)
+
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.currency, 999)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.cancel()
+    self.assertEqual(exchange.state, exchange.CANCELED)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+
+
+  def test_simple_ask_for_donation_accept(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    offeree_r = Resources(wood1=1)
+    offeree_r.save()
+
+    exchange = Exchange(offeror=arthur, offeree_resources=offeree_r,
+                        offeree=brian)
+
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+    exchange.accept()
+    self.assertEqual(exchange.state, exchange.ACCEPTED)
+    self.assertEqual(arthur.player.resources.wood1, 1)
+    self.assertEqual(brian.player.resources.wood1, 10)
+
+  def test_simple_ask_for_donation_reject(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    offeree_r = Resources(wood1=1)
+    offeree_r.save()
+
+    exchange = Exchange(offeror=arthur, offeree_resources=offeree_r,
+                        offeree=brian)
+
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+    exchange.reject()
+    self.assertEqual(exchange.state, exchange.REJECTED)
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+
+  def test_simple_ask_for_donation_cancel(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    offeree_r = Resources(wood1=1)
+    offeree_r.save()
+
+    exchange = Exchange(offeror=arthur, offeree_resources=offeree_r,
+                        offeree=brian)
+
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+    exchange.cancel()
+    self.assertEqual(exchange.state, exchange.CANCELED)
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+
   def test_territory_exchange(self):
     arthur = User.objects.get(username='arthur')
     brian = User.objects.get(username='brian')
 
+    aglax = Territory.objects.get(name='Aglax')
+
+    efea = Territory.objects.get(name='Efea')
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian,  offeree_territory=efea)
+
+    exchange.offer()
+
+    exchange.accept()
 

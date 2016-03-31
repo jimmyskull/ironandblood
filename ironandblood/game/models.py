@@ -364,25 +364,36 @@ class Exchange(models.Model):
     (CANCELED, 'Canceled'),
   )
   offeror = models.ForeignKey(User, related_name='+')
-  offeror_resources = models.OneToOneField(Resources,
-    on_delete=models.CASCADE,
+  offeror_resources = models.OneToOneField(Resources, null=True,
+    on_delete=models.CASCADE, related_name='+')
+  offeror_territory = models.ForeignKey(Territory, null=True, blank=True,
     related_name='+')
-  #offeror_territory = models.ForeignKey(Territory, blank=True)
   #oferror_as_debt = models.BooleanField(default=False)
 
   offeree = models.ForeignKey(User, related_name='+')
-  offeree_resources = models.OneToOneField(Resources,
+  offeree_resources = models.OneToOneField(Resources, null=True,
     on_delete=models.CASCADE, related_name='+')
-  #offeree_territory = models.ForeignKey(Territory, blank=True)
+  offeree_territory = models.ForeignKey(Territory, null=True, blank=True,
+    related_name='+')
   #offeree_as_debt = models.BooleanField(default=False)
 
   state = models.CharField(max_length=1, choices=NEGOTIATION_STATE,
     default=UNKNOWN)
 
   def save(self, *args, **kwargs):
-    self.offeror_resources.save()
-    self.offeree_resources.save()
+    if self.offeror_resources:
+      self.offeror_resources.save()
+    if self.offeree_resources:
+      self.offeree_resources.save()
     super(Exchange, self).save(*args, **kwargs)
+
+  def _offeror_has_resources(self):
+    return not (self.offeror_resources is None or \
+      self.offeror_resources.is_empty())
+
+  def _offeree_has_resources(self):
+    return not (self.offeree_resources is None or \
+      self.offeree_resources.is_empty())
 
   def offer(self):
     """
@@ -393,17 +404,25 @@ class Exchange(models.Model):
     """
     if self.state != self.UNKNOWN:
       raise ValidationError(_("This exchange cannot be offered."))
-    if self.offeror_resources.is_empty() and self.offeree_resources.is_empty():
-      raise ValidationError(_("Empty exchange."))
+
     if self.offeror == self.offeree:
       raise ValidationError(_("Offeror and offeree cannot be the same."))
-    if not self.offeror.player.resources.covers(self.offeror_resources):
-      raise ValidationError(
-        _("Offeror “%(player)s” lack resources to offer this exchange."),
-        params={
-        'player': self.offeror.username
-        })
-    self.offeror.player.resources.subtract(self.offeror_resources)
+
+    if not self._offeror_has_resources() and \
+      not self._offeree_has_resources() and \
+      self.offeror_territory is None and \
+      self.offeree_territory is None:
+      raise ValidationError(_("Empty exchange."))
+
+    if self._offeror_has_resources():
+      if not self.offeror.player.resources.covers(self.offeror_resources):
+        raise ValidationError(
+          _("Offeror “%(player)s” lack resources to offer this exchange."),
+          params={
+          'player': self.offeror.username
+          })
+      self.offeror.player.resources.subtract(self.offeror_resources)
+
     self.state = self.WAITING
     self.save()
     return True
@@ -414,7 +433,8 @@ class Exchange(models.Model):
     """
     if self.state != self.WAITING:
       raise ValidationError(_("This exchange is not waiting for response."))
-    self.offeror.player.resources.add(self.offeror_resources)
+    if self._offeror_has_resources():
+      self.offeror.player.resources.add(self.offeror_resources)
     self.state = self.CANCELED
     self.save()
     return True
@@ -425,16 +445,20 @@ class Exchange(models.Model):
     """
     if self.state != self.WAITING:
       raise ValidationError(_("This exchange is not waiting for response."))
-    if not self.offeree.player.resources.covers(self.offeree_resources):
-      raise ValidationError(
-        _("Offeree “%(player)s” lack resources to accept this exchange."),
-        params={
-        'player': self.offeree.username
-        })
-    self.offeree.player.resources.subtract(self.offeree_resources)
-    self.offeree.player.resources.add(self.offeror_resources)
 
-    self.offeror.player.resources.add(self.offeree_resources)
+    if self._offeree_has_resources():
+      if not self.offeree.player.resources.covers(self.offeree_resources):
+        raise ValidationError(
+          _("Offeree “%(player)s” lack resources to accept this exchange."),
+          params={
+          'player': self.offeree.username
+          })
+      self.offeree.player.resources.subtract(self.offeree_resources)
+      self.offeror.player.resources.add(self.offeree_resources)
+
+    if self._offeror_has_resources():
+      self.offeree.player.resources.add(self.offeror_resources)
+
     self.state = self.ACCEPTED
     self.save()
     return True
@@ -445,7 +469,10 @@ class Exchange(models.Model):
     """
     if self.state != self.WAITING:
       raise ValidationError(_("This exchange is not waiting for response."))
-    self.offeror.player.resources.add(self.offeror_resources)
+
+    if self._offeror_has_resources():
+      self.offeror.player.resources.add(self.offeror_resources)
+
     self.state = self.REJECTED
     self.save()
     return True
