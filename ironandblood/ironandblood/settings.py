@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.admindocs',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -75,17 +76,25 @@ WSGI_APPLICATION = 'ironandblood.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'USER': 'root',
+#         'NAME': 'ironandblood',
+#         'TEST': {
+#             'NAME': 'ironandbloodtest',
+#         },
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'USER': 'root',
-        'NAME': 'ironandblood',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'ironandblooddb',
         'TEST': {
-            'NAME': 'ironandbloodtest',
+            'NAME': '/tmp/ironandblooddbtest',
         },
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
