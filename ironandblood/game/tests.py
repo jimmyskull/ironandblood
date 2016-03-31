@@ -56,7 +56,7 @@ class CharterTestCase(TestCase):
     brian = User.objects.get(username='brian')
     dickens = User.objects.get(username='dickens')
 
-    # Arthur owns Aglax
+    # Arthur controls Aglax
     aglax = Territory.objects.get(name='Aglax')
     aglax.owner = arthur
     aglax.save()
@@ -68,6 +68,10 @@ class CharterTestCase(TestCase):
     lancelot = User.objects.get(username='lancelot')
 
     aglax = Territory.objects.get(name='Aglax')
+
+    self.assertTrue(arthur.player.is_head_of_state())
+    self.assertTrue(dickens.player.is_privateer())
+    self.assertTrue(lancelot.player.is_privateer())
 
     with self.assertRaisesRegexp(ValidationError,
       "brian does not currently control “Aglax”\."):
@@ -87,7 +91,8 @@ class CharterTestCase(TestCase):
       Charter.grant(leaser=arthur, territory=aglax, member=dickens, size=10)
 
     with self.assertRaisesRegexp(ValidationError,
-      "“Aglax” has 90% of its land area available. Trying to grant 100% of land."):
+      ("“Aglax” has 90% of its land area available. "
+       "Trying to grant 100% of land.")):
       Charter.grant(leaser=arthur, territory=aglax, member=lancelot, size=100)
 
     with self.assertRaisesRegexp(ValidationError,
@@ -98,6 +103,6 @@ class CharterTestCase(TestCase):
       "Grant size of 101% is not within the range 1%–100%\."):
       Charter.grant(leaser=arthur, territory=aglax, member=lancelot, size=101)
 
-    self.assertTrue(lancelot.player.is_privateer())
     self.assertTrue(arthur.player.is_head_of_state())
     self.assertTrue(dickens.player.is_chartered_company())
+    self.assertTrue(lancelot.player.is_privateer())

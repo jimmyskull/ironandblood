@@ -68,16 +68,13 @@ class Player(ResourceList):
   and here we use the performance of a player to determine those features.
   """
   user = models.OneToOneField(User, on_delete=models.CASCADE)
-  """Attribute docs"""
 
-# Number of bonds with delinquent payments.
   delinquency = models.IntegerField(
     'Delinquent bonds',
     default=0,
     help_text=("Number of delinquent bonds as creditor. The rate of "
       "delinquency (delinquent bonds over total paid bonds) affects the "
       "credit quality of the player."))
-  """Attribute docs"""
 
   def territories(self):
     """List of territories controlled by the player"""
@@ -164,7 +161,7 @@ class Bond(ResourceList):
   turns, except if the bond is a Perpetual Bond (|maturity_date| == 0).
   If not paid, |creditor| increases his delinquency."""
   PENDING = 'W'
-  TRANSACTION_FASE = 'N'
+  TRANSACTION_PHASE = 'M'
   PAID = 'P'
   FORGIVEN = 'F'
   DEBT_STATE = (
