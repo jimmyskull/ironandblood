@@ -268,3 +268,48 @@ class ExchangeTestCase(TestCase):
     with self.assertRaisesRegexp(ValidationError,
       "This exchange is not waiting for response."):
       exchange.cancel()
+
+
+  def test_empty_exchange(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    offeror_r = Resources(currency=0)
+    offeror_r.save()
+
+    offeree_r = Resources(wood1=0)
+    offeree_r.save()
+
+    exchange = Exchange(
+    offeror=arthur,
+    offeror_resources=offeror_r,
+    offeree=arthur,
+    offeree_resources=offeree_r)
+
+    with self.assertRaisesRegexp(ValidationError, "Empty exchange."):
+      exchange.offer()
+
+  def test_exchange_between_the_same_player(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    arthur.player.resources.currency = 1
+    arthur.player.resources.save()
+    brian.player.resources.wood1 = 1
+    brian.player.resources.save()
+
+    offeror_r = Resources(currency=1)
+    offeror_r.save()
+
+    offeree_r = Resources(wood1=1)
+    offeree_r.save()
+
+    exchange = Exchange(
+    offeror=arthur,
+    offeror_resources=offeror_r,
+    offeree=arthur,
+    offeree_resources=offeree_r)
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeror and offeree cannot be the same."):
+      exchange.offer()

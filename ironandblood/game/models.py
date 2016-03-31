@@ -137,6 +137,38 @@ class Resources(models.Model):
     self.sulfur += other.sulfur
     self.gunpowder += other.gunpowder
 
+  def is_empty(self):
+    """Return if all values are zero"""
+    return self.currency == 0 and \
+      self.wood1 == 0 and \
+      self.wood2 == 0 and \
+      self.wood3 == 0 and \
+      self.stone1 == 0 and \
+      self.stone2 == 0 and \
+      self.gems == 0 and \
+      self.spices == 0 and \
+      self.coffee == 0 and \
+      self.yerba_mate == 0 and \
+      self.alcohol == 0 and \
+      self.salt == 0 and \
+      self.opium == 0 and \
+      self.tea == 0 and \
+      self.pearls == 0 and \
+      self.perfumery == 0 and \
+      self.textilesI == 0 and \
+      self.textilesII == 0 and \
+      self.craft == 0 and \
+      self.ore == 0 and \
+      self.coal == 0 and \
+      self.metal1 == 0 and \
+      self.metal2 == 0 and \
+      self.food == 0 and \
+      self.fibre == 0 and \
+      self.guano == 0 and \
+      self.saltpetre == 0 and \
+      self.sulfur == 0 and \
+      self.gunpowder == 0
+
 class Player(models.Model):
   """
   Player information
@@ -281,7 +313,7 @@ class Bond(models.Model):
     on_delete=models.CASCADE, related_name='+')
   # Issuer is the borrower of the bond
   issuer = models.ForeignKey(User, blank=False, related_name='+')
-  issuer_resources = models.OneToOneField(Resources,
+  issuer_resources = models.ForeignKey(Resources,
     on_delete=models.CASCADE, related_name='+')
   # Maturity date and turns until maturity date
   # If not paid in time, the current creditor increases his delinquency.
@@ -335,9 +367,15 @@ class Exchange(models.Model):
   offeror_resources = models.OneToOneField(Resources,
     on_delete=models.CASCADE,
     related_name='+')
+  #offeror_territory = models.ForeignKey(Territory, blank=True)
+  #oferror_as_debt = models.BooleanField(default=False)
+
   offeree = models.ForeignKey(User, related_name='+')
   offeree_resources = models.OneToOneField(Resources,
     on_delete=models.CASCADE, related_name='+')
+  #offeree_territory = models.ForeignKey(Territory, blank=True)
+  #offeree_as_debt = models.BooleanField(default=False)
+
   state = models.CharField(max_length=1, choices=NEGOTIATION_STATE,
     default=UNKNOWN)
 
@@ -355,6 +393,10 @@ class Exchange(models.Model):
     """
     if self.state != self.UNKNOWN:
       raise ValidationError(_("This exchange cannot be offered."))
+    if self.offeror_resources.is_empty() and self.offeree_resources.is_empty():
+      raise ValidationError(_("Empty exchange."))
+    if self.offeror == self.offeree:
+      raise ValidationError(_("Offeror and offeree cannot be the same."))
     if not self.offeror.player.resources.covers(self.offeror_resources):
       raise ValidationError(
         _("Offeror “%(player)s” lack resources to offer this exchange."),
