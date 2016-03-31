@@ -35,6 +35,108 @@ class Resources(models.Model):
   sulfur = models.IntegerField('Sulfur', default=0)
   gunpowder = models.IntegerField('Gunpowder', default=0)
 
+  def covers(self, other):
+    """
+    True if `self` has at least the same amount of resources in `other`.
+    """
+    return self.currency >= other.currency and \
+      self.wood1 >= other.wood1 and \
+      self.wood2 >= other.wood2 and \
+      self.wood3 >= other.wood3 and \
+      self.stone1 >= other.stone1 and \
+      self.stone2 >= other.stone2 and \
+      self.gems >= other.gems and \
+      self.spices >= other.spices and \
+      self.coffee >= other.coffee and \
+      self.yerba_mate >= other.yerba_mate and \
+      self.alcohol >= other.alcohol and \
+      self.salt >= other.salt and \
+      self.opium >= other.opium and \
+      self.tea >= other.tea and \
+      self.pearls >= other.pearls and \
+      self.perfumery >= other.perfumery and \
+      self.textilesI >= other.textilesI and \
+      self.textilesII >= other.textilesII and \
+      self.craft >= other.craft and \
+      self.ore >= other.ore and \
+      self.coal >= other.coal and \
+      self.metal1 >= other.metal1 and \
+      self.metal2 >= other.metal2 and \
+      self.food >= other.food and \
+      self.fibre >= other.fibre and \
+      self.guano >= other.guano and \
+      self.saltpetre >= other.saltpetre and \
+      self.sulfur >= other.sulfur and \
+      self.gunpowder >= other.gunpowder
+
+  def subtract(self, other):
+    """
+    Changes `self` by subtracting values from `other`.
+    """
+    self.currency -= other.currency
+    self.wood1 -= other.wood1
+    self.wood2 -= other.wood2
+    self.wood3 -= other.wood3
+    self.stone1 -= other.stone1
+    self.stone2 -= other.stone2
+    self.gems -= other.gems
+    self.spices -= other.spices
+    self.coffee -= other.coffee
+    self.yerba_mate -= other.yerba_mate
+    self.alcohol -= other.alcohol
+    self.salt -= other.salt
+    self.opium -= other.opium
+    self.tea -= other.tea
+    self.pearls -= other.pearls
+    self.perfumery -= other.perfumery
+    self.textilesI -= other.textilesI
+    self.textilesII -= other.textilesII
+    self.craft -= other.craft
+    self.ore -= other.ore
+    self.coal -= other.coal
+    self.metal1 -= other.metal1
+    self.metal2 -= other.metal2
+    self.food -= other.food
+    self.fibre -= other.fibre
+    self.guano -= other.guano
+    self.saltpetre -= other.saltpetre
+    self.sulfur -= other.sulfur
+    self.gunpowder -= other.gunpowder
+
+  def add(self, other):
+    """
+    Changes `self` by adding values from `other`.
+    """
+    self.currency += other.currency
+    self.wood1 += other.wood1
+    self.wood2 += other.wood2
+    self.wood3 += other.wood3
+    self.stone1 += other.stone1
+    self.stone2 += other.stone2
+    self.gems += other.gems
+    self.spices += other.spices
+    self.coffee += other.coffee
+    self.yerba_mate += other.yerba_mate
+    self.alcohol += other.alcohol
+    self.salt += other.salt
+    self.opium += other.opium
+    self.tea += other.tea
+    self.pearls += other.pearls
+    self.perfumery += other.perfumery
+    self.textilesI += other.textilesI
+    self.textilesII += other.textilesII
+    self.craft += other.craft
+    self.ore += other.ore
+    self.coal += other.coal
+    self.metal1 += other.metal1
+    self.metal2 += other.metal2
+    self.food += other.food
+    self.fibre += other.fibre
+    self.guano += other.guano
+    self.saltpetre += other.saltpetre
+    self.sulfur += other.sulfur
+    self.gunpowder += other.gunpowder
+
 class Player(models.Model):
   """
   Player information
@@ -115,19 +217,19 @@ class Charter(models.Model):
   @classmethod
   def grant(cls, leaser, territory, member, size):
     """
-    Charts |size| percent of the |territory|’s land area.
-    * |leaser| must control |territory|
-    * The sum of all charters in the |territory| cannot pass 100%
-    * |member| cannot already have a charter in the territory.
+    Charts `size` percent of the `territory`’s land area.
+    * `leaser` must control `territory`
+    * The sum of all charters in the `territory` cannot pass 100%
+    * `member` cannot already have a charter in the territory.
     """
-    # |size| in [1%, 100%]
+    # `size` in [1%, 100%]
     if size <= 0 or size > 100:
      raise ValidationError(
         _("Grant size of %(grant_size)d%% is not within the range 1%%–100%%."),
         params={
         'grant_size': size
         })
-    # |leaser| controls |territory|
+    # `leaser` controls `territory`
     if territory.owner != leaser:
       raise ValidationError(
         _("%(player)s does not currently control “%(territory)s”."),
@@ -135,7 +237,7 @@ class Charter(models.Model):
         'player': leaser.username,
         'territory': territory.name
         })
-    # |member| does not currently have a charter in |territory|
+    # `member` does not currently have a charter in `territory`
     if Charter.objects.filter(territory=territory, member=member):
       raise ValidationError(
         _("%(player)s already has a charter in “%(territory)s”."),
@@ -143,7 +245,7 @@ class Charter(models.Model):
         'player': member.username,
         'territory': territory.name
         })
-    # |territory| has space for this charter
+    # `territory` has space for this charter
     allotted = Charter.objects.filter(territory=territory).aggregate(Sum('size'))['size__sum']
     if allotted is None:
       allotted = 0
@@ -161,10 +263,10 @@ class Charter(models.Model):
     return cls(territory=territory, member=member, size=size)
 
 class Bond(models.Model):
-  """Bond is a debt investment in which an |issuer| loans |resource| to a
-  |creditor|.  The creditor agrees to pay the debt in up to |maturity_date|
-  turns, except if the bond is a Perpetual Bond (|maturity_date| == 0).
-  If not paid, |creditor| increases his delinquency."""
+  """Bond is a debt investment in which an `issuer` loans `resource` to a
+  `creditor`.  The creditor agrees to pay the debt in up to `maturity_date`
+  turns, except if the bond is a Perpetual Bond (`maturity_date` == 0).
+  If not paid, `creditor` increases his delinquency."""
   PENDING = 'W'
   TRANSACTION_PHASE = 'M'
   PAID = 'P'
@@ -175,13 +277,13 @@ class Bond(models.Model):
     (FORGIVEN, 'Forgiven'),
   )
   # Creditor is the first lender (player) to own the debt
-  creditor = models.ForeignKey(User, blank=False, related_name='creditor')
+  creditor = models.ForeignKey(User, blank=False, related_name='+')
   creditor_resources = models.OneToOneField(Resources,
-    on_delete=models.CASCADE, related_name='creditor_resources')
+    on_delete=models.CASCADE, related_name='+')
   # Issuer is the borrower of the bond
-  issuer = models.ForeignKey(User, blank=False, related_name='issuer')
+  issuer = models.ForeignKey(User, blank=False, related_name='+')
   issuer_resources = models.OneToOneField(Resources,
-    on_delete=models.CASCADE, related_name='issuer_resources')
+    on_delete=models.CASCADE, related_name='+')
   # Maturity date and turns until maturity date
   # If not paid in time, the current creditor increases his delinquency.
   # Delinquency is reached when maturity_date == bond_age,
@@ -192,20 +294,117 @@ class Bond(models.Model):
   state = models.CharField(max_length=1, choices=DEBT_STATE, default=PENDING)
 
 class Exchange(models.Model):
-  """Logging of the Exchange Trading System"""
+  """
+  Exchange Trading System
+
+  Exchange is the way to trade resources between two players.
+
+  Events associated with an exchange
+  ----------------------------------
+
+  Offering
+    An offeror prepares an exchange, setting resources to be
+    sent and resources to be received from the offeree player.
+    While not accepted/rejected, the resources to be sent to offeree is held
+    to guarantee the exchange success in case of agreement.
+
+  Waiting response
+    The offeree player receives the exchange proposal.
+
+  Offeree accepts
+    Resources are finally exchanged and the negotiation ends.
+
+  Offeree rejects
+    Offeror resources are released and the exchange is canceled.
+
+  Offeror cancels
+    Offeror cancels the exchange proposal and his resources and released.
+  """
+  UNKNOWN = 'U'
   WAITING = 'W'
   ACCEPTED = 'A'
   REJECTED = 'R'
+  CANCELED = 'C'
   NEGOTIATION_STATE = (
+    (UNKNOWN, 'Unknown'),
     (WAITING, 'Waiting'),
     (ACCEPTED, 'Accepted'),
     (REJECTED, 'Rejected'),
+    (CANCELED, 'Canceled'),
   )
-  offeror = models.ForeignKey(User, related_name='offeror')
+  offeror = models.ForeignKey(User, related_name='+')
   offeror_resources = models.OneToOneField(Resources,
-    on_delete=models.CASCADE, related_name='offeror_resources')
-  offeree = models.ForeignKey(User, related_name='offeree')
+    on_delete=models.CASCADE,
+    related_name='+')
+  offeree = models.ForeignKey(User, related_name='+')
   offeree_resources = models.OneToOneField(Resources,
-    on_delete=models.CASCADE, related_name='offeree_resources')
+    on_delete=models.CASCADE, related_name='+')
   state = models.CharField(max_length=1, choices=NEGOTIATION_STATE,
-    default=WAITING)
+    default=UNKNOWN)
+
+  def save(self, *args, **kwargs):
+    self.offeror_resources.save()
+    self.offeree_resources.save()
+    super(Exchange, self).save(*args, **kwargs)
+
+  def offer(self):
+    """
+    Offeror sends the exchange proposal.
+    Collect resources from `offeror` to prepare for transaction.
+    We do not reserve resources of `offeree` because he is still not aware
+    of this exchange.
+    """
+    if self.state != self.UNKNOWN:
+      raise ValidationError(_("This exchange cannot be offered."))
+    if not self.offeror.player.resources.covers(self.offeror_resources):
+      raise ValidationError(
+        _("Offeror “%(player)s” lack resources to offer this exchange."),
+        params={
+        'player': self.offeror.username
+        })
+    self.offeror.player.resources.subtract(self.offeror_resources)
+    self.state = self.WAITING
+    self.save()
+    return True
+
+  def cancel(self):
+    """
+    Offeror cancels the exchange.
+    """
+    if self.state != self.WAITING:
+      raise ValidationError(_("This exchange is not waiting for response."))
+    self.offeror.player.resources.add(self.offeror_resources)
+    self.state = self.CANCELED
+    self.save()
+    return True
+
+  def accept(self):
+    """
+    Offeree accepts the exchange. Resources are finally exchanged.
+    """
+    if self.state != self.WAITING:
+      raise ValidationError(_("This exchange is not waiting for response."))
+    if not self.offeree.player.resources.covers(self.offeree_resources):
+      raise ValidationError(
+        _("Offeree “%(player)s” lack resources to accept this exchange."),
+        params={
+        'player': self.offeree.username
+        })
+    self.offeree.player.resources.subtract(self.offeree_resources)
+    self.offeree.player.resources.add(self.offeror_resources)
+
+    self.offeror.player.resources.add(self.offeree_resources)
+    self.state = self.ACCEPTED
+    self.save()
+    return True
+
+  def reject(self):
+    """
+    Offeree rejects the exchange.
+    """
+    if self.state != self.WAITING:
+      raise ValidationError(_("This exchange is not waiting for response."))
+    self.offeror.player.resources.add(self.offeror_resources)
+    self.state = self.REJECTED
+    self.save()
+    return True
