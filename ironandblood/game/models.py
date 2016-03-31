@@ -268,10 +268,9 @@ class Bond(models.Model):
   turns, except if the bond is a Perpetual Bond (`maturity_date` == 0).
   If not paid, `creditor` increases his delinquency."""
   PENDING = 'W'
-  TRANSACTION_PHASE = 'M'
   PAID = 'P'
   FORGIVEN = 'F'
-  DEBT_STATE = (
+  BOND_STATE = (
     (PENDING, 'Pending'),
     (PAID, 'Paid'),
     (FORGIVEN, 'Forgiven'),
@@ -290,8 +289,8 @@ class Bond(models.Model):
   # unless maturity_date == 0, which is a perpetual bond.
   maturity_date = models.IntegerField(default=0)
   bond_age = models.IntegerField(default=0)
-  # Debt state
-  state = models.CharField(max_length=1, choices=DEBT_STATE, default=PENDING)
+
+  state = models.CharField(max_length=1, choices=BOND_STATE, default=PENDING)
 
 class Exchange(models.Model):
   """
