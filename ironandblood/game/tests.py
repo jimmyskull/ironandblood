@@ -399,8 +399,8 @@ class ExchangeTestCase(TestCase):
     offeree_r = Resources(wood1=1)
     offeree_r.save()
 
-    exchange = Exchange(offeror=arthur, offeree_resources=offeree_r,
-                        offeree=brian)
+    exchange = Exchange(offeror=arthur,
+                        offeree=brian, offeree_resources=offeree_r)
 
     self.assertEqual(arthur.player.resources.wood1, 0)
     self.assertEqual(brian.player.resources.wood1, 11)
@@ -419,8 +419,8 @@ class ExchangeTestCase(TestCase):
     offeree_r = Resources(wood1=1)
     offeree_r.save()
 
-    exchange = Exchange(offeror=arthur, offeree_resources=offeree_r,
-                        offeree=brian)
+    exchange = Exchange(offeror=arthur,
+                        offeree=brian, offeree_resources=offeree_r)
 
     self.assertEqual(arthur.player.resources.wood1, 0)
     self.assertEqual(brian.player.resources.wood1, 11)
@@ -439,8 +439,8 @@ class ExchangeTestCase(TestCase):
     offeree_r = Resources(wood1=1)
     offeree_r.save()
 
-    exchange = Exchange(offeror=arthur, offeree_resources=offeree_r,
-                        offeree=brian)
+    exchange = Exchange(offeror=arthur,
+                        offeree=brian, offeree_resources=offeree_r)
 
     self.assertEqual(arthur.player.resources.wood1, 0)
     self.assertEqual(brian.player.resources.wood1, 11)
@@ -457,7 +457,6 @@ class ExchangeTestCase(TestCase):
     brian = User.objects.get(username='brian')
 
     aglax = Territory.objects.get(name='Aglax')
-
     efea = Territory.objects.get(name='Efea')
 
     exchange = Exchange(offeror=arthur, offeror_territory=aglax,
