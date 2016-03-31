@@ -110,8 +110,24 @@ class CharterTestCase(TestCase):
 class ExchangeTestCase(TestCase):
   def setUp(self):
     create_test_game()
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
 
-  def test_simple_exchange(self):
+    arthur.player.resources.currency = 1000
+    arthur.player.resources.save()
+
+    brian.player.resources.wood1 = 11
+    brian.player.resources.save()
+
+    aglax = Territory.objects.get(name='Aglax')
+    aglax.owner = arthur
+    aglax.save()
+
+    efea = Territory.objects.get(name='Efea')
+    efea.owner = brian
+    efea.save()
+
+  def test_simple_exchange_accept(self):
     arthur = User.objects.get(username='arthur')
     brian = User.objects.get(username='brian')
     dickens = User.objects.get(username='dickens')
@@ -128,6 +144,9 @@ class ExchangeTestCase(TestCase):
       offeree=brian,
       offeree_resources=offeree_r)
 
+    arthur.player.resources.currency = 5
+    arthur.player.resources.save()
+
     with self.assertRaisesRegexp(ValidationError,
       "Offeror “arthur” lack resources to offer this exchange."):
       exchange.offer()
@@ -137,7 +156,9 @@ class ExchangeTestCase(TestCase):
 
     exchange.offer()
     self.assertEqual(arthur.player.resources.currency, 900)
-    self.assertEqual(brian.player.resources.wood1, 0)
+
+    brian.player.resources.wood1 = 3
+    brian.player.resources.save()
 
     with self.assertRaisesRegexp(ValidationError,
       "Offeree “brian” lack resources to accept this exchange."):
@@ -146,7 +167,6 @@ class ExchangeTestCase(TestCase):
     brian.player.resources.wood1 = 11
     brian.player.resources.save()
 
-    # Before accepting
     self.assertEqual(exchange.state, exchange.WAITING)
     self.assertEqual(arthur.player.resources.currency, 900)
     self.assertEqual(arthur.player.resources.wood1, 0)
@@ -155,16 +175,18 @@ class ExchangeTestCase(TestCase):
     self.assertEqual(brian.player.resources.wood1, 11)
 
     self.assertTrue(exchange.accept())
-
-    # After accepting
     self.assertEqual(exchange.state, exchange.ACCEPTED)
+
     self.assertEqual(arthur.player.resources.currency, 900)
     self.assertEqual(arthur.player.resources.wood1, 10)
 
     self.assertEqual(brian.player.resources.currency, 100)
     self.assertEqual(brian.player.resources.wood1, 1)
 
-    # Exchange the other way around, but this time to reject
+  def test_simple_exchange_reject(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+    dickens = User.objects.get(username='dickens')
 
     offeror_r = Resources(currency=100)
     offeror_r.save()
@@ -173,37 +195,50 @@ class ExchangeTestCase(TestCase):
     offeree_r.save()
 
     exchange = Exchange(
-      offeror=brian,
+      offeror=arthur,
       offeror_resources=offeror_r,
-      offeree=arthur,
+      offeree=brian,
       offeree_resources=offeree_r)
 
-    self.assertEqual(brian.player.resources.currency, 100)
-    self.assertEqual(brian.player.resources.wood1, 1)
+    arthur.player.resources.currency = 0
+    arthur.player.resources.save()
 
-    self.assertEqual(arthur.player.resources.currency, 900)
-    self.assertEqual(arthur.player.resources.wood1, 10)
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeror “arthur” lack resources to offer this exchange."):
+      exchange.offer()
 
-    self.assertEqual(exchange.state, exchange.UNKNOWN)
+    arthur.player.resources.currency = 1000
+    arthur.player.resources.save()
+
     exchange.offer()
+    self.assertEqual(arthur.player.resources.currency, 900)
+    self.assertEqual(brian.player.resources.wood1, 11)
+
+    brian.player.resources.wood1 = 0
+    brian.player.resources.save()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeree “brian” lack resources to accept this exchange."):
+      exchange.accept()
+
+    brian.player.resources.wood1 = 11
+    brian.player.resources.save()
 
     self.assertEqual(exchange.state, exchange.WAITING)
+    self.assertEqual(arthur.player.resources.currency, 900)
+    self.assertEqual(arthur.player.resources.wood1, 0)
 
     self.assertEqual(brian.player.resources.currency, 0)
-    self.assertEqual(brian.player.resources.wood1, 1)
-
-    self.assertEqual(arthur.player.resources.currency, 900)
-    self.assertEqual(arthur.player.resources.wood1, 10)
+    self.assertEqual(brian.player.resources.wood1, 11)
 
     self.assertTrue(exchange.reject())
-
     self.assertEqual(exchange.state, exchange.REJECTED)
 
-    self.assertEqual(brian.player.resources.currency, 100)
-    self.assertEqual(brian.player.resources.wood1, 1)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(arthur.player.resources.wood1, 0)
 
-    self.assertEqual(arthur.player.resources.currency, 900)
-    self.assertEqual(arthur.player.resources.wood1, 10)
+    self.assertEqual(brian.player.resources.currency, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
 
     with self.assertRaisesRegexp(ValidationError,
       "This exchange is not waiting for response."):
@@ -217,7 +252,10 @@ class ExchangeTestCase(TestCase):
       "This exchange is not waiting for response."):
       exchange.cancel()
 
-    # Offer and cancel
+  def test_simple_exchange_cancel(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+    dickens = User.objects.get(username='dickens')
 
     offeror_r = Resources(currency=100)
     offeror_r.save()
@@ -226,36 +264,35 @@ class ExchangeTestCase(TestCase):
     offeree_r.save()
 
     exchange = Exchange(
-      offeror=brian,
+      offeror=arthur,
       offeror_resources=offeror_r,
-      offeree=arthur,
+      offeree=brian,
       offeree_resources=offeree_r)
 
-    self.assertEqual(brian.player.resources.currency, 100)
-    self.assertEqual(brian.player.resources.wood1, 1)
+    self.assertEqual(brian.player.resources.currency, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
 
-    self.assertEqual(arthur.player.resources.currency, 900)
-    self.assertEqual(arthur.player.resources.wood1, 10)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(arthur.player.resources.wood1, 0)
 
     exchange.offer()
-
     self.assertEqual(exchange.state, exchange.WAITING)
 
     self.assertEqual(brian.player.resources.currency, 0)
-    self.assertEqual(brian.player.resources.wood1, 1)
+    self.assertEqual(brian.player.resources.wood1, 11)
 
     self.assertEqual(arthur.player.resources.currency, 900)
-    self.assertEqual(arthur.player.resources.wood1, 10)
+    self.assertEqual(arthur.player.resources.wood1, 0)
 
     self.assertTrue(exchange.cancel())
 
     self.assertEqual(exchange.state, exchange.CANCELED)
 
-    self.assertEqual(brian.player.resources.currency, 100)
-    self.assertEqual(brian.player.resources.wood1, 1)
+    self.assertEqual(brian.player.resources.currency, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
 
-    self.assertEqual(arthur.player.resources.currency, 900)
-    self.assertEqual(arthur.player.resources.wood1, 10)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(arthur.player.resources.wood1, 0)
 
     with self.assertRaisesRegexp(ValidationError,
       "This exchange is not waiting for response."):
@@ -305,11 +342,17 @@ class ExchangeTestCase(TestCase):
     offeree_r.save()
 
     exchange = Exchange(
-    offeror=arthur,
-    offeror_resources=offeror_r,
-    offeree=arthur,
-    offeree_resources=offeree_r)
+      offeror=arthur,
+      offeror_resources=offeror_r,
+      offeree=arthur,
+      offeree_resources=offeree_r)
 
     with self.assertRaisesRegexp(ValidationError,
       "Offeror and offeree cannot be the same."):
       exchange.offer()
+
+  def test_territory_exchange(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+
