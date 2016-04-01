@@ -427,24 +427,30 @@ class Exchange(models.Model):
     self.save()
     return True
 
-  def cancel(self):
-    """
-    Offeror cancels the exchange.
-    """
-    if self.state != self.WAITING:
-      raise ValidationError(_("This exchange is not waiting for response."))
-    if self._offeror_has_resources():
-      self.offeror.player.resources.add(self.offeror_resources)
-    self.state = self.CANCELED
-    self.save()
-    return True
-
   def accept(self):
     """
     Offeree accepts the exchange. Resources are finally exchanged.
     """
     if self.state != self.WAITING:
       raise ValidationError(_("This exchange is not waiting for response."))
+
+    if self.offeror_territory:
+      if self.offeror_territory.owner != self.offeror:
+        raise ValidationError(
+          _("Offeror “%(player)s” does not control “%(territory)s”."),
+          params={
+          'player': self.offeror.username,
+          'territory': self.offeror_territory.name
+          })
+
+    if self.offeree_territory:
+      if self.offeree_territory.owner != self.offeree:
+        raise ValidationError(
+          _("Offeree “%(player)s” does not control “%(territory)s”."),
+          params={
+          'player': self.offeree.username,
+          'territory': self.offeree_territory.name
+          })
 
     if self._offeree_has_resources():
       if not self.offeree.player.resources.covers(self.offeree_resources):
@@ -453,6 +459,17 @@ class Exchange(models.Model):
           params={
           'player': self.offeree.username
           })
+
+    # Execute transactions after checking everything
+    if self.offeror_territory:
+      self.offeror_territory.owner = self.offeree
+      self.offeror_territory.save()
+
+    if self.offeree_territory:
+      self.offeree_territory.owner = self.offeror
+      self.offeree_territory.save()
+
+    if self._offeree_has_resources():
       self.offeree.player.resources.subtract(self.offeree_resources)
       self.offeror.player.resources.add(self.offeree_resources)
 
@@ -474,5 +491,19 @@ class Exchange(models.Model):
       self.offeror.player.resources.add(self.offeror_resources)
 
     self.state = self.REJECTED
+    self.save()
+    return True
+
+  def cancel(self):
+    """
+    Offeror cancels the exchange.  This is identical operation of rejection.
+    """
+    if self.state != self.WAITING:
+      raise ValidationError(_("This exchange is not waiting for response."))
+
+    if self._offeror_has_resources():
+      self.offeror.player.resources.add(self.offeror_resources)
+
+    self.state = self.CANCELED
     self.save()
     return True

@@ -452,17 +452,417 @@ class ExchangeTestCase(TestCase):
     self.assertEqual(arthur.player.resources.wood1, 0)
     self.assertEqual(brian.player.resources.wood1, 11)
 
-  def test_territory_exchange(self):
+  def test_territory_exchange_accept(self):
     arthur = User.objects.get(username='arthur')
     brian = User.objects.get(username='brian')
 
     aglax = Territory.objects.get(name='Aglax')
     efea = Territory.objects.get(name='Efea')
 
-    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
-                        offeree=brian,  offeree_territory=efea)
+    exchange = Exchange(offeror=arthur, offeror_territory=efea,
+                        offeree=brian,  offeree_territory=aglax)
 
     exchange.offer()
 
-    exchange.accept()
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeror “arthur” does not control “Efea”."):
+      exchange.accept()
 
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian,  offeree_territory=aglax)
+
+    exchange.offer()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeree “brian” does not control “Aglax”."):
+      exchange.accept()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian,  offeree_territory=efea)
+
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(efea.owner, brian)
+    exchange.offer()
+    exchange.accept()
+    self.assertEqual(exchange.state, exchange.ACCEPTED)
+    self.assertEqual(aglax.owner, brian)
+    self.assertEqual(efea.owner, arthur)
+
+  def test_territory_exchange_reject(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    exchange = Exchange(offeror=arthur, offeror_territory=efea,
+                        offeree=brian,  offeree_territory=aglax)
+
+    exchange.offer()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeror “arthur” does not control “Efea”."):
+      exchange.accept()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian,  offeree_territory=aglax)
+
+    exchange.offer()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeree “brian” does not control “Aglax”."):
+      exchange.accept()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian,  offeree_territory=efea)
+
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(efea.owner, brian)
+    exchange.offer()
+    exchange.reject()
+    self.assertEqual(exchange.state, exchange.REJECTED)
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(efea.owner, brian)
+
+  def test_territory_exchange_canceled(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    exchange = Exchange(offeror=arthur, offeror_territory=efea,
+                        offeree=brian,  offeree_territory=aglax)
+
+    exchange.offer()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeror “arthur” does not control “Efea”."):
+      exchange.accept()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian,  offeree_territory=aglax)
+
+    exchange.offer()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeree “brian” does not control “Aglax”."):
+      exchange.accept()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian,  offeree_territory=efea)
+
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(efea.owner, brian)
+    exchange.offer()
+    exchange.cancel()
+    self.assertEqual(exchange.state, exchange.CANCELED)
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(efea.owner, brian)
+
+  def test_territory_donation_accept(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    exchange = Exchange(offeror=arthur, offeror_territory=efea,
+                        offeree=brian)
+
+    exchange.offer()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeror “arthur” does not control “Efea”."):
+      exchange.accept()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian)
+
+    self.assertEqual(aglax.owner, arthur)
+    exchange.offer()
+    exchange.accept()
+    self.assertEqual(exchange.state, exchange.ACCEPTED)
+    self.assertEqual(aglax.owner, brian)
+
+  def test_territory_donation_reject(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    exchange = Exchange(offeror=arthur, offeror_territory=efea,
+                        offeree=brian)
+
+    exchange.offer()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeror “arthur” does not control “Efea”."):
+      exchange.accept()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian)
+
+    self.assertEqual(aglax.owner, arthur)
+    exchange.offer()
+    exchange.reject()
+    self.assertEqual(exchange.state, exchange.REJECTED)
+    self.assertEqual(aglax.owner, arthur)
+
+  def test_territory_donation_canceled(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    exchange = Exchange(offeror=arthur, offeror_territory=efea,
+                        offeree=brian)
+
+    exchange.offer()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeror “arthur” does not control “Efea”."):
+      exchange.accept()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian)
+
+    self.assertEqual(aglax.owner, arthur)
+    exchange.offer()
+    exchange.cancel()
+    self.assertEqual(exchange.state, exchange.CANCELED)
+    self.assertEqual(aglax.owner, arthur)
+
+  def test_territory_ask_donation_accept(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    exchange = Exchange(offeror=arthur,
+                        offeree=brian, offeree_territory=aglax)
+
+    exchange.offer()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeree “brian” does not control “Aglax”."):
+      exchange.accept()
+
+    exchange = Exchange(offeror=arthur,
+                        offeree=brian, offeree_territory=efea)
+
+    self.assertEqual(efea.owner, brian)
+    exchange.offer()
+    exchange.accept()
+    self.assertEqual(efea.owner, arthur)
+
+  def test_territory_ask_donation_reject(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    exchange = Exchange(offeror=arthur,
+                        offeree=brian, offeree_territory=aglax)
+
+    exchange.offer()
+
+    with self.assertRaisesRegexp(ValidationError,
+      "Offeree “brian” does not control “Aglax”."):
+      exchange.accept()
+
+    exchange = Exchange(offeror=arthur,
+                        offeree=brian, offeree_territory=efea)
+
+    self.assertEqual(efea.owner, brian)
+    exchange.offer()
+    exchange.reject()
+    self.assertEqual(efea.owner, brian)
+
+  def test_territory_buy_accept(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    offeree_r = Resources(wood1=10)
+    offeree_r.save()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian,  offeree_resources=offeree_r)
+
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+    exchange.accept()
+    self.assertEqual(exchange.state, exchange.ACCEPTED)
+    self.assertEqual(aglax.owner, brian)
+    self.assertEqual(arthur.player.resources.wood1, 10)
+    self.assertEqual(brian.player.resources.wood1, 1)
+
+  def test_territory_buy_reject(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    offeree_r = Resources(wood1=10)
+    offeree_r.save()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                        offeree=brian,  offeree_resources=offeree_r)
+
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+    exchange.reject()
+    self.assertEqual(exchange.state, exchange.REJECTED)
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(arthur.player.resources.wood1, 0)
+    self.assertEqual(brian.player.resources.wood1, 11)
+
+  def test_territory_sell_accept(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    offeror_r = Resources(currency=499)
+    offeror_r.save()
+
+    exchange = Exchange(offeror=arthur, offeror_resources=offeror_r,
+                        offeree=brian,  offeree_territory=efea)
+
+    self.assertEqual(efea.owner, brian)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.currency, 501)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.accept()
+    self.assertEqual(exchange.state, exchange.ACCEPTED)
+    self.assertEqual(efea.owner, arthur)
+    self.assertEqual(arthur.player.resources.currency, 501)
+    self.assertEqual(brian.player.resources.currency, 499)
+
+  def test_territory_sell_reject(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    offeror_r = Resources(currency=499)
+    offeror_r.save()
+
+    exchange = Exchange(offeror=arthur, offeror_resources=offeror_r,
+                        offeree=brian,  offeree_territory=efea)
+
+    self.assertEqual(efea.owner, brian)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.currency, 501)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.reject()
+    self.assertEqual(exchange.state, exchange.REJECTED)
+    self.assertEqual(efea.owner, brian)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+
+  def test_territory_exchange_with_resources_accept(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    offeror_r = Resources(currency=499)
+    offeror_r.save()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                                        offeror_resources=offeror_r,
+                        offeree=brian,  offeree_territory=efea)
+
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(efea.owner, brian)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.currency, 501)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.accept()
+    self.assertEqual(exchange.state, exchange.ACCEPTED)
+    self.assertEqual(aglax.owner, brian)
+    self.assertEqual(efea.owner, arthur)
+    self.assertEqual(arthur.player.resources.currency, 501)
+    self.assertEqual(brian.player.resources.currency, 499)
+
+  def test_territory_exchange_with_resources_reject(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    offeror_r = Resources(currency=499)
+    offeror_r.save()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                                        offeror_resources=offeror_r,
+                        offeree=brian,  offeree_territory=efea)
+
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(efea.owner, brian)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.currency, 501)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.reject()
+    self.assertEqual(exchange.state, exchange.REJECTED)
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(efea.owner, brian)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+
+  def test_territory_exchange_with_resources_canceled(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    offeror_r = Resources(currency=499)
+    offeror_r.save()
+
+    exchange = Exchange(offeror=arthur, offeror_territory=aglax,
+                                        offeror_resources=offeror_r,
+                        offeree=brian,  offeree_territory=efea)
+
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(efea.owner, brian)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.offer()
+    self.assertEqual(arthur.player.resources.currency, 501)
+    self.assertEqual(brian.player.resources.currency, 0)
+    exchange.reject()
+    self.assertEqual(exchange.state, exchange.REJECTED)
+    self.assertEqual(aglax.owner, arthur)
+    self.assertEqual(efea.owner, brian)
+    self.assertEqual(arthur.player.resources.currency, 1000)
+    self.assertEqual(brian.player.resources.currency, 0)
