@@ -330,6 +330,29 @@ class Exchange(models.Model):
 
   Exchange is the way to trade resources between two players.
 
+  Exchange mechanism
+  ------------------
+
+  Exchange operations allow complex transactions with some level of guarantee
+  for the two players.
+
+  Barter
+    Exchange of goods, without using money.
+
+  Donation
+    Send goods, money, or territories to the other player. Or ask for donation.
+
+  Payment
+    Offer goods for money.
+
+  Bond (debts)
+    Exchange bonds directly between players (pass responsibility of payment
+    to the other player, keeping the original bond lender).
+
+  Complex operations
+    One can mix goods, money, territories and even a bond (debt) in a single
+    exchange operation.
+
   Events associated with an exchange
   ----------------------------------
 
