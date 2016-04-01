@@ -35,6 +35,21 @@ class Resources(models.Model):
   sulfur = models.IntegerField('Sulfur', default=0)
   gunpowder = models.IntegerField('Gunpowder', default=0)
 
+  items = [currency, wood1, wood2, wood3, stone1,
+    stone2, gems, spices, coffee, yerba_mate,
+    alcohol, salt, opium, tea, pearls, perfumery,
+    textilesI, textilesII, craft, ore, coal,
+    metal1, metal2, food, fibre, guano,
+    saltpetre, sulfur, gunpowder]
+
+  def __str__(self):
+    nonzero = list()
+    for it in self.items:
+      quantity = getattr(self, it.name)
+      if quantity != 0:
+        nonzero.append('{}={}'.format(it.name, quantity))
+    return ', '.join(nonzero)
+
   def covers(self, other):
     """
     True if `self` has at least the same amount of resources in `other`.
@@ -241,6 +256,9 @@ class Territory(models.Model):
   name = models.CharField(max_length=32, blank=False)
   land_area = models.IntegerField('Land area', default=100)
 
+  def __str__(self):
+    return 'name={}, area={}'.format(self.name, self.land_area)
+
 class Charter(models.Model):
   territory = models.ForeignKey(Territory, blank=False)
   member = models.ForeignKey(User, blank=False)
@@ -249,7 +267,7 @@ class Charter(models.Model):
   @classmethod
   def grant(cls, leaser, territory, member, size):
     """
-    Charts `size` percent of the `territory`’s land area.
+    Grants `size` percent of the `territory`’s land area to `member`.
     * `leaser` must control `territory`
     * The sum of all charters in the `territory` cannot pass 100%
     * `member` cannot already have a charter in the territory.
@@ -307,20 +325,65 @@ class Bond(models.Model):
     (PAID, 'Paid'),
     (FORGIVEN, 'Forgiven'),
   )
-  # Creditor is the first lender (player) to own the debt
-  creditor = models.ForeignKey(User, blank=False, related_name='+')
-  # Issuer is the borrower of the bond
-  issuer = models.ForeignKey(User, blank=False, related_name='+')
-  issuer_resources = models.ForeignKey(Resources, null=True, blank=True,
+  # Holder is the player that will receive the payment
+  holder = models.ForeignKey(User, related_name='+')
+  # Borrower is the player that can either pay to he holder or
+  # exchange the bond with a third player.
+  borrower = models.ForeignKey(User, related_name='+')
+
+  resources = models.ForeignKey(Resources, null=True, blank=True,
     related_name='+')
-  # Maturity date and turns until maturity date
-  # If not paid in time, the current creditor increases his delinquency.
-  # Delinquency is reached when maturity_date == bond_age,
-  # unless maturity_date == 0, which is a perpetual bond.
-  maturity_date = models.IntegerField(default=0)
-  bond_age = models.IntegerField(default=0)
+  territory = models.ForeignKey(Territory, null=True, blank=True,
+    related_name='+')
+
+  maturity = models.IntegerField(default=0)
 
   state = models.CharField(max_length=1, choices=BOND_STATE, default=PENDING)
+
+  def __str__(self):
+    ret = ["pk={}, state={}, holder={}, borrower={}".format(self.pk,
+      self.get_state_display(), self.holder, self.borrower)]
+    if self.resources:
+      ret.append(", resources=<{}>".format(self.resources))
+    if self.territory:
+      ret.append(", territory=<{}>").format(self.territory)
+    return ''.join(ret)
+
+  def forgive(self, user):
+    if self.holder and user != self.holder:
+      raise ValidationError(
+        _("“%(player)s” is not the holder of this bond."),
+        params={
+        'player': user.username
+        })
+
+    if self.state != self.PENDING:
+      raise ValidationError(_("This bond is not pending."))
+
+    self.state = self.FORGIVEN
+    self.save()
+    return True
+
+  def pay(self, user):
+    if self.borrower and user != self.borrower:
+      raise ValidationError(
+        _("“%(player)s” is not the borrower of this bond."),
+        params={
+        'player': user.username
+        })
+
+    if self.state != self.PENDING:
+      raise ValidationError(_("This bond is not pending."))
+
+    exchange = Exchange(offeror=self.borrower,
+                        offeror_resources=self.resources,
+                        offeror_territory=self.territory,
+                        offeree=self.holder)
+    exchange.offer(user=user)
+    exchange.accept(user=self.holder)
+    self.state = self.PAID
+    self.save()
+    return True
 
 class Exchange(models.Model):
   """
@@ -389,25 +452,57 @@ class Exchange(models.Model):
     (CANCELED, 'Canceled'),
   )
   offeror = models.ForeignKey(User, related_name='+')
-  offeror_resources = models.OneToOneField(Resources, null=True,
-    on_delete=models.CASCADE, related_name='+')
+  offeror_resources = models.ForeignKey(Resources, null=True,
+    related_name='+')
   offeror_territory = models.ForeignKey(Territory, null=True, blank=True,
     related_name='+')
   offeror_bond = models.ForeignKey(Bond, null=True, blank=True,
     related_name='+')
   offeror_as_bond = models.BooleanField(default=False)
+  offeror_as_bond_maturity = models.IntegerField(default=0)
 
   offeree = models.ForeignKey(User, null=True, blank=True, related_name='+')
-  offeree_resources = models.OneToOneField(Resources, null=True,
-    on_delete=models.CASCADE, related_name='+')
+  offeree_resources = models.ForeignKey(Resources, null=True,
+    related_name='+')
   offeree_territory = models.ForeignKey(Territory, null=True, blank=True,
     related_name='+')
   offeree_bond = models.ForeignKey(Bond, null=True, blank=True,
     related_name='+')
   offeree_as_bond = models.BooleanField(default=False)
+  offeree_as_bond_maturity = models.IntegerField(default=0)
 
   state = models.CharField(max_length=1, choices=NEGOTIATION_STATE,
     default=UNKNOWN)
+
+  def __str__(self):
+    ret = ["pk={}, state={}".format(self.pk, self.get_state_display())]
+    if self.offeror:
+      ret.append(", (offeror={}".format(self.offeror))
+      if self.offeror_resources:
+        ret.append(", resources=<{}>".format(self.offeror_resources))
+      if self.offeror_territory:
+        ret.append(", territory=<{}>".format(self.offeror_territory))
+      if self.offeror_bond:
+        ret.append(", bond=<{}>".format(self.offeror_bond))
+      if self.offeror_as_bond:
+        ret.append(", as_bond")
+      ret.append(")")
+    else:
+      ret.append(", no offeror")
+    if self.offeree:
+      ret.append(", (offeree={}".format(self.offeree))
+      if self.offeree_resources:
+        ret.append(", resources=<{}>".format(self.offeree_resources))
+      if self.offeree_territory:
+        ret.append(", territory=<{}>".format(self.offeree_territory))
+      if self.offeree_bond:
+        ret.append(", bond=<{}>".format(self.offeree_bond))
+      if self.offeree_as_bond:
+        ret.append(", as_bond")
+      ret.append(")")
+    else:
+      ret.append(", no offeree")
+    return ''.join(ret)
 
   def save(self, *args, **kwargs):
     if self.offeror_resources:
@@ -451,10 +546,46 @@ class Exchange(models.Model):
     if not self._offeror_has_resources() and \
       not self._offeree_has_resources() and \
       self.offeror_territory is None and \
-      self.offeree_territory is None:
+      self.offeree_territory is None and \
+      self.offeror_bond is None and \
+      self.offeree_bond is None:
       raise ValidationError(_("Empty exchange."))
 
-    if self._offeror_has_resources():
+    # We must refuse Bond exchanges with their holders, because currently
+    # there is no way to perform a safe transaction.
+    # Example: offeror Bond payment would be ok, but if offeree Bond, then
+    # we would have to undo the first payment.
+
+    # TODO: check bond is pending (here and when accepting)
+
+    if self.offeror_bond:
+      if self.offeror_bond.borrower != self.offeror:
+        raise ValidationError(
+          _("“%(player)s” is not the borrower of this Bond."),
+          params={
+          'player': self.offeror.username
+          })
+      if self.offeror_bond.holder == self.offeree:
+        raise ValidationError(
+          _("Cannot exchange a Bond with its holder. "
+            "To pay the bond, use the payment section."))
+      if self.offeror_bond.state != self.offeror_bond.PENDING:
+        raise ValidationError(_("This Bond is not pending."))
+
+    if self.offeree_bond:
+      if self.offeree_bond.borrower != self.offeree:
+        raise ValidationError(
+          _("“%(player)s” is not the holder of this Bond."),
+          params={
+          'player': self.offeree.username
+          })
+      if self.offeree_bond.holder == self.offeror:
+        raise ValidationError(
+          _("Cannot exchange a Bond with its holder."))
+      if self.offeree_bond.state != self.offeree_bond.PENDING:
+        raise ValidationError(_("This Bond is not pending."))
+
+    if not self.offeror_as_bond and self._offeror_has_resources():
       if not self.offeror.player.resources.covers(self.offeror_resources):
         raise ValidationError(
           _("Offeror “%(player)s” lack resources to offer this exchange."),
@@ -482,7 +613,7 @@ class Exchange(models.Model):
     if self.state != self.WAITING:
       raise ValidationError(_("This exchange is not waiting for response."))
 
-    if self.offeror_territory:
+    if not self.offeror_as_bond and self.offeror_territory:
       if self.offeror_territory.owner != self.offeror:
         raise ValidationError(
           _("Offeror “%(player)s” does not control “%(territory)s”."),
@@ -491,7 +622,7 @@ class Exchange(models.Model):
           'territory': self.offeror_territory.name
           })
 
-    if self.offeree_territory:
+    if not self.offeree_as_bond and self.offeree_territory:
       if self.offeree_territory.owner != self.offeree:
         raise ValidationError(
           _("Offeree “%(player)s” does not control “%(territory)s”."),
@@ -500,7 +631,7 @@ class Exchange(models.Model):
           'territory': self.offeree_territory.name
           })
 
-    if self._offeree_has_resources():
+    if not self.offeree_as_bond and self._offeree_has_resources():
       if not self.offeree.player.resources.covers(self.offeree_resources):
         raise ValidationError(
           _("Offeree “%(player)s” lack resources to accept this exchange."),
@@ -508,22 +639,68 @@ class Exchange(models.Model):
           'player': self.offeree.username
           })
 
+    # We need to check if the Bond is still owned by the players
+    if self.offeror_bond:
+      if self.offeror_bond.borrower != self.offeror:
+        raise ValidationError(
+          _("“%(player)s” is not the borrower of this Bond."),
+          params={
+          'player': self.offeror.username
+          })
+      if self.offeree_bond.state != self.offeree_bond.PENDING:
+        raise ValidationError(_("This Bond is not pending."))
+
+    if self.offeree_bond:
+      if self.offeree_bond.borrower != self.offeree:
+        raise ValidationError(
+          _("“%(player)s” is not the holder of this Bond."),
+          params={
+          'player': self.offeree.username
+          })
+      if self.offeree_bond.state != self.offeree_bond.PENDING:
+        raise ValidationError(_("This Bond is not pending."))
+
     # Execute transactions after checking everything
-    if self.offeror_territory:
-      self.offeror_territory.owner = self.offeree
-      self.offeror_territory.save()
 
-    if self.offeree_territory:
-      self.offeree_territory.owner = self.offeror
-      self.offeree_territory.save()
+    if self.offeror_as_bond:
+      bond = Bond(borrower=self.offeror, holder=self.offeree,
+        resources=self.offeror_resources,
+        territory=self.offeror_territory,
+        maturity=self.offeror_as_bond_maturity)
+      bond.save()
+    else:
+      if self._offeror_has_resources():
+        self.offeree.player.resources.add(self.offeror_resources)
 
-    if self._offeree_has_resources():
-      self.offeree.player.resources.subtract(self.offeree_resources)
-      self.offeror.player.resources.add(self.offeree_resources)
+      if self.offeror_territory:
+        self.offeror_territory.owner = self.offeree
+        self.offeror_territory.save()
 
-    if self._offeror_has_resources():
-      self.offeree.player.resources.add(self.offeror_resources)
+      if self.offeror_bond:
+        self.offeror_bond.borrower = self.offeree
+        self.offeror_bond.save()
 
+    if self.offeree_as_bond:
+      bond = Bond(borrower=self.offeree, holder=self.offeror,
+        resources=self.offeree_resources,
+        territory=self.offeree_territory,
+        maturity=self.offeree_as_bond_maturity)
+      bond.save()
+    else:
+      if self._offeree_has_resources():
+        self.offeree.player.resources.subtract(self.offeree_resources)
+        self.offeror.player.resources.add(self.offeree_resources)
+
+      if self.offeree_territory:
+        self.offeree_territory.owner = self.offeror
+        self.offeree_territory.save()
+
+      if self.offeree_bond:
+        self.offeree_bond.borrower = self.offeror
+        self.offeree_bond.save()
+
+    self.offeree.player.resources.save()
+    self.offeror.player.resources.save()
     self.state = self.ACCEPTED
     self.save()
     return True
