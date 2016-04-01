@@ -339,6 +339,10 @@ class Exchange(models.Model):
     While not accepted/rejected, the resources to be sent to offeree is held
     to guarantee the exchange success in case of agreement.
 
+    **Note** Territories are not held while waiting for response.  That is,
+    the player can offer the same territory to many users, and the first one
+    to accept will get the ownership.
+
   Waiting response
     The offeree player receives the exchange proposal.
 
