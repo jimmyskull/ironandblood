@@ -500,7 +500,7 @@ class Exchange(models.Model):
 
   def cancel(self):
     """
-    Offeror cancels the exchange.  This is identical operation of rejection.
+    Offeror cancels the exchange.  This operation is identical to rejection.
     """
     if self.state != self.WAITING:
       raise ValidationError(_("This exchange is not waiting for response."))
