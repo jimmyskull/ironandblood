@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Sum
 from django.utils.translation import ugettext as _
 
@@ -397,7 +397,7 @@ class Exchange(models.Model):
     related_name='+')
   offeror_as_bond = models.BooleanField(default=False)
 
-  offeree = models.ForeignKey(User, related_name='+')
+  offeree = models.ForeignKey(User, null=True, blank=True, related_name='+')
   offeree_resources = models.OneToOneField(Resources, null=True,
     on_delete=models.CASCADE, related_name='+')
   offeree_territory = models.ForeignKey(Territory, null=True, blank=True,
@@ -424,13 +424,20 @@ class Exchange(models.Model):
     return not (self.offeree_resources is None or \
       self.offeree_resources.is_empty())
 
-  def offer(self):
+  def offer(self, user):
     """
-    Offeror sends the exchange proposal.
+    Offeror `user` sends the exchange proposal.
     Collect resources from `offeror` to prepare for transaction.
     We do not reserve resources of `offeree` because he is still not aware
     of this exchange.
     """
+    if self.offeror and user != self.offeror:
+      raise ValidationError(
+        _("“%(player)s” is not the offeror of this exchange."),
+        params={
+        'player': user.username
+        })
+
     if self.state != self.UNKNOWN:
       raise ValidationError(_("This exchange cannot be offered."))
 
@@ -460,10 +467,18 @@ class Exchange(models.Model):
     self.save()
     return True
 
-  def accept(self):
+  @transaction.atomic
+  def accept(self, user):
     """
-    Offeree accepts the exchange. Resources are finally exchanged.
+    Offeree `user` accepts the exchange. Resources are finally exchanged.
     """
+    if self.offeree and user != self.offeree:
+      raise ValidationError(
+        _("“%(player)s” is not the offeree of this exchange."),
+        params={
+        'player': user.username
+        })
+
     if self.state != self.WAITING:
       raise ValidationError(_("This exchange is not waiting for response."))
 
@@ -513,10 +528,17 @@ class Exchange(models.Model):
     self.save()
     return True
 
-  def reject(self):
+  def reject(self, user):
     """
-    Offeree rejects the exchange.
+    Offeree `user` rejects the exchange.
     """
+    if self.offeree and user != self.offeree:
+      raise ValidationError(
+        _("“%(player)s” is not the offeree of this exchange."),
+        params={
+        'player': user.username
+        })
+
     if self.state != self.WAITING:
       raise ValidationError(_("This exchange is not waiting for response."))
 
@@ -527,10 +549,17 @@ class Exchange(models.Model):
     self.save()
     return True
 
-  def cancel(self):
+  def cancel(self, user):
     """
-    Offeror cancels the exchange.  This operation is identical to rejection.
+    Offeror `user` cancels the exchange. Operation identical to rejection.
     """
+    if self.offeror and user != self.offeror:
+      raise ValidationError(
+        _("“%(player)s” is not the offeror of this exchange."),
+        params={
+        'player': user.username
+        })
+
     if self.state != self.WAITING:
       raise ValidationError(_("This exchange is not waiting for response."))
 
