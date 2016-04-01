@@ -461,7 +461,7 @@ class Exchange(models.Model):
   offeror_as_bond = models.BooleanField(default=False)
   offeror_as_bond_maturity = models.IntegerField(default=0)
 
-  offeree = models.ForeignKey(User, null=True, blank=True, related_name='+')
+  offeree = models.ForeignKey(User, related_name='+')
   offeree_resources = models.ForeignKey(Resources, null=True,
     related_name='+')
   offeree_territory = models.ForeignKey(Territory, null=True, blank=True,
@@ -555,8 +555,6 @@ class Exchange(models.Model):
     # there is no way to perform a safe transaction.
     # Example: offeror Bond payment would be ok, but if offeree Bond, then
     # we would have to undo the first payment.
-
-    # TODO: check bond is pending (here and when accepting)
 
     if self.offeror_bond:
       if self.offeror_bond.borrower != self.offeror:
