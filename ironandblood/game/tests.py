@@ -495,20 +495,16 @@ class ExchangeTestCase(TestCase):
     exchange = Exchange(offeror=arthur, offeror_territory=efea,
                         offeree=brian,  offeree_territory=aglax)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeror “arthur” does not control “Efea”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur, offeror_territory=aglax,
                         offeree=brian,  offeree_territory=aglax)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeree “brian” does not control “Aglax”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur, offeror_territory=aglax,
                         offeree=brian,  offeree_territory=efea)
@@ -531,20 +527,16 @@ class ExchangeTestCase(TestCase):
     exchange = Exchange(offeror=arthur, offeror_territory=efea,
                         offeree=brian,  offeree_territory=aglax)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeror “arthur” does not control “Efea”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur, offeror_territory=aglax,
                         offeree=brian,  offeree_territory=aglax)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeree “brian” does not control “Aglax”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur, offeror_territory=aglax,
                         offeree=brian,  offeree_territory=efea)
@@ -567,20 +559,16 @@ class ExchangeTestCase(TestCase):
     exchange = Exchange(offeror=arthur, offeror_territory=efea,
                         offeree=brian,  offeree_territory=aglax)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeror “arthur” does not control “Efea”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur, offeror_territory=aglax,
                         offeree=brian,  offeree_territory=aglax)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeree “brian” does not control “Aglax”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur, offeror_territory=aglax,
                         offeree=brian,  offeree_territory=efea)
@@ -603,11 +591,9 @@ class ExchangeTestCase(TestCase):
     exchange = Exchange(offeror=arthur, offeror_territory=efea,
                         offeree=brian)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeror “arthur” does not control “Efea”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur, offeror_territory=aglax,
                         offeree=brian)
@@ -628,11 +614,9 @@ class ExchangeTestCase(TestCase):
     exchange = Exchange(offeror=arthur, offeror_territory=efea,
                         offeree=brian)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeror “arthur” does not control “Efea”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur, offeror_territory=aglax,
                         offeree=brian)
@@ -653,11 +637,9 @@ class ExchangeTestCase(TestCase):
     exchange = Exchange(offeror=arthur, offeror_territory=efea,
                         offeree=brian)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeror “arthur” does not control “Efea”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur, offeror_territory=aglax,
                         offeree=brian)
@@ -678,11 +660,9 @@ class ExchangeTestCase(TestCase):
     exchange = Exchange(offeror=arthur,
                         offeree=brian, offeree_territory=aglax)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeree “brian” does not control “Aglax”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur,
                         offeree=brian, offeree_territory=efea)
@@ -702,11 +682,9 @@ class ExchangeTestCase(TestCase):
     exchange = Exchange(offeror=arthur,
                         offeree=brian, offeree_territory=aglax)
 
-    exchange.offer(user=arthur)
-
     with self.assertRaisesRegexp(ValidationError,
       "Offeree “brian” does not control “Aglax”."):
-      exchange.accept(user=brian)
+      exchange.offer(user=arthur)
 
     exchange = Exchange(offeror=arthur,
                         offeree=brian, offeree_territory=efea)

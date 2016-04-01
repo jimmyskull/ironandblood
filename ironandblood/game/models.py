@@ -264,22 +264,17 @@ class Charter(models.Model):
   member = models.ForeignKey(User, blank=False)
   size = models.IntegerField('Land area percentage', default=10)
 
-  @classmethod
-  def grant(cls, leaser, territory, member, size):
-    """
-    Grants `size` percent of the `territory`’s land area to `member`.
-    * `leaser` must control `territory`
-    * The sum of all charters in the `territory` cannot pass 100%
-    * `member` cannot already have a charter in the territory.
-    """
-    # `size` in [1%, 100%]
+  @staticmethod
+  def _validate_size(size):
     if size <= 0 or size > 100:
      raise ValidationError(
         _("Grant size of %(grant_size)d%% is not within the range 1%%–100%%."),
         params={
         'grant_size': size
         })
-    # `leaser` controls `territory`
+
+  @staticmethod
+  def _check_leaser_controls_territory(territory, leaser):
     if territory.owner != leaser:
       raise ValidationError(
         _("%(player)s does not currently control “%(territory)s”."),
@@ -287,7 +282,9 @@ class Charter(models.Model):
         'player': leaser.username,
         'territory': territory.name
         })
-    # `member` does not currently have a charter in `territory`
+
+  @staticmethod
+  def _check_if_member_already_has_charter(territory, member):
     if Charter.objects.filter(territory=territory, member=member):
       raise ValidationError(
         _("%(player)s already has a charter in “%(territory)s”."),
@@ -295,8 +292,11 @@ class Charter(models.Model):
         'player': member.username,
         'territory': territory.name
         })
-    # `territory` has space for this charter
-    allotted = Charter.objects.filter(territory=territory).aggregate(Sum('size'))['size__sum']
+
+  @staticmethod
+  def _check_territory_not_full(territory, member, size):
+    allotted = Charter.objects.filter(territory=territory)
+    allotted = allotted.aggregate(Sum('size'))['size__sum']
     if allotted is None:
       allotted = 0
     free = 100 - allotted
@@ -309,7 +309,19 @@ class Charter(models.Model):
         'free': free,
         'grant_size': size
         })
-    # Create the charter, but do not save it yet
+
+  @classmethod
+  def grant(cls, leaser, territory, member, size):
+    """
+    Grants `size` percent of the `territory`’s land area to `member`.
+    * `leaser` must control `territory`
+    * The sum of all charters in the `territory` cannot pass 100%
+    * `member` cannot already have a charter in the territory.
+    """
+    cls._validate_size(size=size)
+    cls._check_leaser_controls_territory(territory=territory, leaser=leaser)
+    cls._check_if_member_already_has_charter(territory=territory, member=member)
+    cls._check_territory_not_full(territory=territory, member=member, size=size)
     return cls(territory=territory, member=member, size=size)
 
 class Bond(models.Model):
@@ -349,22 +361,14 @@ class Bond(models.Model):
       ret.append(", territory=<{}>").format(self.territory)
     return ''.join(ret)
 
-  def forgive(self, user):
+  def _check_user_is_holder(self, user):
     if self.holder and user != self.holder:
-      raise ValidationError(
-        _("“%(player)s” is not the holder of this bond."),
+      raise ValidationError(_("“%(player)s” is not the holder of this bond."),
         params={
         'player': user.username
         })
 
-    if self.state != self.PENDING:
-      raise ValidationError(_("This bond is not pending."))
-
-    self.state = self.FORGIVEN
-    self.save()
-    return True
-
-  def pay(self, user):
+  def _check_user_is_borrower(self, user):
     if self.borrower and user != self.borrower:
       raise ValidationError(
         _("“%(player)s” is not the borrower of this bond."),
@@ -372,9 +376,20 @@ class Bond(models.Model):
         'player': user.username
         })
 
+  def _check_state_pending(self):
     if self.state != self.PENDING:
       raise ValidationError(_("This bond is not pending."))
 
+  def forgive(self, user):
+    self._check_user_is_holder(user=user)
+    self._check_state_pending()
+    self.state = self.FORGIVEN
+    self.save()
+    return True
+
+  def pay(self, user):
+    self._check_user_is_borrower(user=user)
+    self._check_state_pending()
     exchange = Exchange(offeror=self.borrower,
                         offeror_resources=self.resources,
                         offeror_territory=self.territory,
@@ -519,42 +534,14 @@ class Exchange(models.Model):
     return not (self.offeree_resources is None or \
       self.offeree_resources.is_empty())
 
-  def offer(self, user):
-    """
-    Offeror `user` sends the exchange proposal.
-    Collect resources from `offeror` to prepare for transaction.
-    We do not reserve resources of `offeree` because he is still not aware
-    of this exchange.
-    """
-    if self.offeror and user != self.offeror:
-      raise ValidationError(
-        _("“%(player)s” is not the offeror of this exchange."),
-        params={
-        'player': user.username
-        })
-
-    if self.state != self.UNKNOWN:
-      raise ValidationError(_("This exchange cannot be offered."))
-
-    if self.offeror == self.offeree:
-      raise ValidationError(_("Offeror and offeree cannot be the same."))
-
-    if (self.offeror_bond is not None and self.offeror_as_bond) or \
-      (self.offeree_bond is not None and self.offeree_as_bond):
-      raise ValidationError(_("Cannot build a Bond of Bond."))
-
-    if not self._offeror_has_resources() and \
-      not self._offeree_has_resources() and \
-      self.offeror_territory is None and \
-      self.offeree_territory is None and \
-      self.offeror_bond is None and \
-      self.offeree_bond is None:
-      raise ValidationError(_("Empty exchange."))
-
+  def _validate_bond(self):
     # We must refuse Bond exchanges with their holders, because currently
     # there is no way to perform a safe transaction.
     # Example: offeror Bond payment would be ok, but if offeree Bond, then
     # we would have to undo the first payment.
+    if (self.offeror_bond is not None and self.offeror_as_bond) or \
+      (self.offeree_bond is not None and self.offeree_as_bond):
+      raise ValidationError(_("Cannot build a Bond of Bond."))
 
     if self.offeror_bond:
       if self.offeror_bond.borrower != self.offeror:
@@ -583,34 +570,8 @@ class Exchange(models.Model):
       if self.offeree_bond.state != self.offeree_bond.PENDING:
         raise ValidationError(_("This Bond is not pending."))
 
-    if not self.offeror_as_bond and self._offeror_has_resources():
-      if not self.offeror.player.resources.covers(self.offeror_resources):
-        raise ValidationError(
-          _("Offeror “%(player)s” lack resources to offer this exchange."),
-          params={
-          'player': self.offeror.username
-          })
-      self.offeror.player.resources.subtract(self.offeror_resources)
-
-    self.state = self.WAITING
-    self.save()
-    return True
-
-  @transaction.atomic
-  def accept(self, user):
-    """
-    Offeree `user` accepts the exchange. Resources are finally exchanged.
-    """
-    if self.offeree and user != self.offeree:
-      raise ValidationError(
-        _("“%(player)s” is not the offeree of this exchange."),
-        params={
-        'player': user.username
-        })
-
-    if self.state != self.WAITING:
-      raise ValidationError(_("This exchange is not waiting for response."))
-
+  def _validate_territory_ownership(self):
+    """Applicable before accept"""
     if not self.offeror_as_bond and self.offeror_territory:
       if self.offeror_territory.owner != self.offeror:
         raise ValidationError(
@@ -629,6 +590,7 @@ class Exchange(models.Model):
           'territory': self.offeree_territory.name
           })
 
+  def _validate_resource_sufficiency(self):
     if not self.offeree_as_bond and self._offeree_has_resources():
       if not self.offeree.player.resources.covers(self.offeree_resources):
         raise ValidationError(
@@ -637,29 +599,82 @@ class Exchange(models.Model):
           'player': self.offeree.username
           })
 
-    # We need to check if the Bond is still owned by the players
-    if self.offeror_bond:
-      if self.offeror_bond.borrower != self.offeror:
-        raise ValidationError(
-          _("“%(player)s” is not the borrower of this Bond."),
-          params={
-          'player': self.offeror.username
-          })
-      if self.offeree_bond.state != self.offeree_bond.PENDING:
-        raise ValidationError(_("This Bond is not pending."))
+    if self.state == self.UNKNOWN:
+      if not self.offeror_as_bond and self._offeror_has_resources():
+        if not self.offeror.player.resources.covers(self.offeror_resources):
+          raise ValidationError(
+            _("Offeror “%(player)s” lack resources to offer this exchange."),
+            params={
+            'player': self.offeror.username
+            })
 
-    if self.offeree_bond:
-      if self.offeree_bond.borrower != self.offeree:
-        raise ValidationError(
-          _("“%(player)s” is not the holder of this Bond."),
-          params={
-          'player': self.offeree.username
-          })
-      if self.offeree_bond.state != self.offeree_bond.PENDING:
-        raise ValidationError(_("This Bond is not pending."))
+  def _check_if_empty(self):
+    if not self._offeror_has_resources() and \
+      not self._offeree_has_resources() and \
+      self.offeror_territory is None and \
+      self.offeree_territory is None and \
+      self.offeror_bond is None and \
+      self.offeree_bond is None:
+      raise ValidationError(_("Empty exchange."))
+
+  def _validate_user_as_offeror(self, user):
+    if self.offeror and user != self.offeror:
+      raise ValidationError(
+        _("“%(player)s” is not the offeror of this exchange."),
+        params={
+        'player': user.username
+        })
+
+  def _validate_user_as_offeree(self, user):
+    if self.offeree and user != self.offeree:
+      raise ValidationError(
+        _("“%(player)s” is not the offeree of this exchange."),
+        params={
+        'player': user.username
+        })
+
+  def offer(self, user):
+    """
+    Offeror `user` sends the exchange proposal.
+    Collect resources from `offeror` to prepare for transaction.
+    We do not reserve resources of `offeree` because he is still not aware
+    of this exchange.
+    """
+    self._validate_user_as_offeror(user=user)
+
+    if self.state != self.UNKNOWN:
+      raise ValidationError(_("This exchange cannot be offered."))
+
+    if self.offeror == self.offeree:
+      raise ValidationError(_("Offeror and offeree cannot be the same."))
+
+    self._check_if_empty()
+    self._validate_bond()
+    self._validate_territory_ownership()
+    self._validate_resource_sufficiency()
+
+    if not self.offeror_as_bond and self._offeror_has_resources():
+      self.offeror.player.resources.subtract(self.offeror_resources)
+
+    self.state = self.WAITING
+    self.save()
+    return True
+
+  @transaction.atomic
+  def accept(self, user):
+    """
+    Offeree `user` accepts the exchange. Resources are finally exchanged.
+    """
+    self._validate_user_as_offeree(user=user)
+
+    if self.state != self.WAITING:
+      raise ValidationError(_("This exchange is not waiting for response."))
+
+    self._validate_bond()
+    self._validate_territory_ownership()
+    self._validate_resource_sufficiency()
 
     # Execute transactions after checking everything
-
     if self.offeror_as_bond:
       bond = Bond(borrower=self.offeror, holder=self.offeree,
         resources=self.offeror_resources,
@@ -703,23 +718,19 @@ class Exchange(models.Model):
     self.save()
     return True
 
-  def reject(self, user):
-    """
-    Offeree `user` rejects the exchange.
-    """
-    if self.offeree and user != self.offeree:
-      raise ValidationError(
-        _("“%(player)s” is not the offeree of this exchange."),
-        params={
-        'player': user.username
-        })
-
+  def _undo_offer(self):
     if self.state != self.WAITING:
       raise ValidationError(_("This exchange is not waiting for response."))
 
     if self._offeror_has_resources():
       self.offeror.player.resources.add(self.offeror_resources)
 
+  def reject(self, user):
+    """
+    Offeree `user` rejects the exchange.
+    """
+    self._validate_user_as_offeree(user=user)
+    self._undo_offer()
     self.state = self.REJECTED
     self.save()
     return True
@@ -728,19 +739,8 @@ class Exchange(models.Model):
     """
     Offeror `user` cancels the exchange. Operation identical to rejection.
     """
-    if self.offeror and user != self.offeror:
-      raise ValidationError(
-        _("“%(player)s” is not the offeror of this exchange."),
-        params={
-        'player': user.username
-        })
-
-    if self.state != self.WAITING:
-      raise ValidationError(_("This exchange is not waiting for response."))
-
-    if self._offeror_has_resources():
-      self.offeror.player.resources.add(self.offeror_resources)
-
+    self._validate_user_as_offeror(user=user)
+    self._undo_offer()
     self.state = self.CANCELED
     self.save()
     return True
