@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from game.models import Charter, Exchange, Player, Territory, Resources
+from game.models import Bond, Charter, Exchange, Player, Territory, Resources
 
 def create_test_game():
   usernames = ['arthur', 'brian', 'blacknight', 'caesar', 'dickens', 'eric',
@@ -866,3 +866,31 @@ class ExchangeTestCase(TestCase):
     self.assertEqual(efea.owner, brian)
     self.assertEqual(arthur.player.resources.currency, 1000)
     self.assertEqual(brian.player.resources.currency, 0)
+
+  def test_fail_bond_of_bond(self):
+    arthur = User.objects.get(username='arthur')
+    brian = User.objects.get(username='brian')
+
+    aglax = Territory.objects.get(name='Aglax')
+    efea = Territory.objects.get(name='Efea')
+
+    offeror_r = Resources(currency=499)
+    offeror_r.save()
+
+    bond = Bond(creditor=arthur, issuer=brian)
+    bond.save()
+
+    exchange = Exchange(offeror=arthur, offeror_bond=bond, offeror_as_bond=True,
+                        offeree=brian)
+
+    with self.assertRaisesRegexp(ValidationError,
+     "Cannot build a Bond of Bond."):
+      exchange.offer()
+
+    exchange = Exchange(offeror=arthur,
+                        offeree=brian, offeree_bond=bond, offeree_as_bond=True)
+
+    with self.assertRaisesRegexp(ValidationError,
+     "Cannot build a Bond of Bond."):
+      exchange.offer()
+

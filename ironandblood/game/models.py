@@ -309,12 +309,10 @@ class Bond(models.Model):
   )
   # Creditor is the first lender (player) to own the debt
   creditor = models.ForeignKey(User, blank=False, related_name='+')
-  creditor_resources = models.OneToOneField(Resources,
-    on_delete=models.CASCADE, related_name='+')
   # Issuer is the borrower of the bond
   issuer = models.ForeignKey(User, blank=False, related_name='+')
-  issuer_resources = models.ForeignKey(Resources,
-    on_delete=models.CASCADE, related_name='+')
+  issuer_resources = models.ForeignKey(Resources, null=True, blank=True,
+    related_name='+')
   # Maturity date and turns until maturity date
   # If not paid in time, the current creditor increases his delinquency.
   # Delinquency is reached when maturity_date == bond_age,
@@ -395,14 +393,18 @@ class Exchange(models.Model):
     on_delete=models.CASCADE, related_name='+')
   offeror_territory = models.ForeignKey(Territory, null=True, blank=True,
     related_name='+')
-  #oferror_as_debt = models.BooleanField(default=False)
+  offeror_bond = models.ForeignKey(Bond, null=True, blank=True,
+    related_name='+')
+  offeror_as_bond = models.BooleanField(default=False)
 
   offeree = models.ForeignKey(User, related_name='+')
   offeree_resources = models.OneToOneField(Resources, null=True,
     on_delete=models.CASCADE, related_name='+')
   offeree_territory = models.ForeignKey(Territory, null=True, blank=True,
     related_name='+')
-  #offeree_as_debt = models.BooleanField(default=False)
+  offeree_bond = models.ForeignKey(Bond, null=True, blank=True,
+    related_name='+')
+  offeree_as_bond = models.BooleanField(default=False)
 
   state = models.CharField(max_length=1, choices=NEGOTIATION_STATE,
     default=UNKNOWN)
@@ -434,6 +436,10 @@ class Exchange(models.Model):
 
     if self.offeror == self.offeree:
       raise ValidationError(_("Offeror and offeree cannot be the same."))
+
+    if (self.offeror_bond is not None and self.offeror_as_bond) or \
+      (self.offeree_bond is not None and self.offeree_as_bond):
+      raise ValidationError(_("Cannot build a Bond of Bond."))
 
     if not self._offeror_has_resources() and \
       not self._offeree_has_resources() and \
