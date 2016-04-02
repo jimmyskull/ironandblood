@@ -42,6 +42,13 @@ class Resources(models.Model):
     metal1, metal2, food, fibre, guano,
     saltpetre, sulfur, gunpowder]
 
+  resource_field_list = ['currency', 'wood1', 'wood2', 'wood3', 'stone1',
+    'stone2', 'gems', 'spices', 'coffee', 'yerba_mate',
+    'alcohol', 'salt', 'opium', 'tea', 'pearls', 'perfumery',
+    'textilesI', 'textilesII', 'craft', 'ore', 'coal',
+    'metal1', 'metal2', 'food', 'fibre', 'guano',
+    'saltpetre', 'sulfur', 'gunpowder']
+
   def __str__(self):
     nonzero = list()
     for it in self.items:
@@ -213,7 +220,8 @@ class Player(models.Model):
   Note: in real life, the credit quality is determined by the other way around,
   and here we use the performance of a player to determine those features.
   """
-  user = models.OneToOneField(User, on_delete=models.CASCADE)
+  user = models.OneToOneField(User, on_delete=models.CASCADE,
+    related_name='player')
 
   resources = models.OneToOneField(Resources, on_delete=models.CASCADE)
 
