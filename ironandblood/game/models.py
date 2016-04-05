@@ -2,194 +2,92 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Sum
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 class Resources(models.Model):
   currency = models.IntegerField('Currency', default=0)
-  wood1 = models.IntegerField('Wood I', default=0)
-  wood2 = models.IntegerField('Wood II', default=0)
-  wood3 = models.IntegerField('Wood III', default=0)
-  stone1 = models.IntegerField('Stone I', default=0)
-  stone2 = models.IntegerField('Stone II', default=0)
-  gems = models.IntegerField('Gems', default=0)
-  spices = models.IntegerField('Spices', default=0)
-  coffee = models.IntegerField('Coffee', default=0)
-  yerba_mate = models.IntegerField('Yerba mate', default=0)
-  alcohol = models.IntegerField('Alcohol', default=0)
-  salt = models.IntegerField('Salt', default=0)
-  opium = models.IntegerField('Opium', default=0)
-  tea = models.IntegerField('Tea', default=0)
-  pearls = models.IntegerField('Pearls', default=0)
-  perfumery = models.IntegerField('Perfumery', default=0)
-  textilesI = models.IntegerField('Textiles I', default=0)
-  textilesII = models.IntegerField('Textiles II', default=0)
-  craft = models.IntegerField('Craft', default=0)
-  ore = models.IntegerField('Ore', default=0)
-  coal = models.IntegerField('Coal', default=0)
-  metal1 = models.IntegerField('Metal', default=0)
-  metal2 = models.IntegerField('Precious Metal', default=0)
-  food = models.IntegerField('Food', default=0)
-  fibre = models.IntegerField('Fibre', default=0)
-  guano = models.IntegerField('Guano', default=0)
-  saltpetre = models.IntegerField('Saltpetre', default=0)
-  sulfur = models.IntegerField('Sulfur', default=0)
-  gunpowder = models.IntegerField('Gunpowder', default=0)
+  manufactured = models.IntegerField('Manufactured Goods', default=0)
+  agricultural = models.IntegerField('Agricultural Goods', default=0)
 
-  items = [currency, wood1, wood2, wood3, stone1,
-    stone2, gems, spices, coffee, yerba_mate,
-    alcohol, salt, opium, tea, pearls, perfumery,
-    textilesI, textilesII, craft, ore, coal,
-    metal1, metal2, food, fibre, guano,
-    saltpetre, sulfur, gunpowder]
+  _list = ['currency', 'manufactured', 'agricultural']
 
-  resource_field_list = ['currency', 'wood1', 'wood2', 'wood3', 'stone1',
-    'stone2', 'gems', 'spices', 'coffee', 'yerba_mate',
-    'alcohol', 'salt', 'opium', 'tea', 'pearls', 'perfumery',
-    'textilesI', 'textilesII', 'craft', 'ore', 'coal',
-    'metal1', 'metal2', 'food', 'fibre', 'guano',
-    'saltpetre', 'sulfur', 'gunpowder']
+  _colors = {
+    'currency': '#c2a91b',
+    'manufactured': '#34495E',
+    'agricultural': '#007733'
+  }
+  _sparkline_colors = {
+    'currency': '#18ff00',
+    'manufactured': '#0096ff',
+    'agricultural': '#ffea00'
+  }
+  # ['#18ff00', '#0096ff', '#ffea00']
+  # ['#c2a91b', '#34495E', '#007733']
 
   def __str__(self):
+    """
+    Returns a list of nonzero resource quantities.
+    """
     nonzero = list()
-    for it in self.items:
-      quantity = getattr(self, it.name)
+    for name in self._list:
+      quantity = getattr(self, name)
       if quantity != 0:
-        nonzero.append('{}={}'.format(it.name, quantity))
+        nonzero.append('{}={}'.format(name, quantity))
     return ', '.join(nonzero)
 
-  def covers(self, other):
+  def _update(self, other, fn):
     """
-    True if `self` has at least the same amount of resources in `other`.
+    Update all fields calling self.field = fn(self.field, other.field)
     """
-    return self.currency >= other.currency and \
-      self.wood1 >= other.wood1 and \
-      self.wood2 >= other.wood2 and \
-      self.wood3 >= other.wood3 and \
-      self.stone1 >= other.stone1 and \
-      self.stone2 >= other.stone2 and \
-      self.gems >= other.gems and \
-      self.spices >= other.spices and \
-      self.coffee >= other.coffee and \
-      self.yerba_mate >= other.yerba_mate and \
-      self.alcohol >= other.alcohol and \
-      self.salt >= other.salt and \
-      self.opium >= other.opium and \
-      self.tea >= other.tea and \
-      self.pearls >= other.pearls and \
-      self.perfumery >= other.perfumery and \
-      self.textilesI >= other.textilesI and \
-      self.textilesII >= other.textilesII and \
-      self.craft >= other.craft and \
-      self.ore >= other.ore and \
-      self.coal >= other.coal and \
-      self.metal1 >= other.metal1 and \
-      self.metal2 >= other.metal2 and \
-      self.food >= other.food and \
-      self.fibre >= other.fibre and \
-      self.guano >= other.guano and \
-      self.saltpetre >= other.saltpetre and \
-      self.sulfur >= other.sulfur and \
-      self.gunpowder >= other.gunpowder
+    for name in self._list:
+      setattr(self, name, fn(getattr(self, name), getattr(other, name)))
 
-  def subtract(self, other):
-    """
-    Changes `self` by subtracting values from `other`.
-    """
-    self.currency -= other.currency
-    self.wood1 -= other.wood1
-    self.wood2 -= other.wood2
-    self.wood3 -= other.wood3
-    self.stone1 -= other.stone1
-    self.stone2 -= other.stone2
-    self.gems -= other.gems
-    self.spices -= other.spices
-    self.coffee -= other.coffee
-    self.yerba_mate -= other.yerba_mate
-    self.alcohol -= other.alcohol
-    self.salt -= other.salt
-    self.opium -= other.opium
-    self.tea -= other.tea
-    self.pearls -= other.pearls
-    self.perfumery -= other.perfumery
-    self.textilesI -= other.textilesI
-    self.textilesII -= other.textilesII
-    self.craft -= other.craft
-    self.ore -= other.ore
-    self.coal -= other.coal
-    self.metal1 -= other.metal1
-    self.metal2 -= other.metal2
-    self.food -= other.food
-    self.fibre -= other.fibre
-    self.guano -= other.guano
-    self.saltpetre -= other.saltpetre
-    self.sulfur -= other.sulfur
-    self.gunpowder -= other.gunpowder
+  def as_list(self):
+    return [getattr(self, name) for name in self._list]
+
+  @staticmethod
+  def color(name):
+    return Resources._colors[name]
+
+  @staticmethod
+  def colors_as_str_list():
+    return list(map(str, Resources._sparkline_colors.values()))
+
+  def has_currency(self):
+    return self.currency > 0
+
+  def has_agricultural(self):
+    return self.agricultural > 0
+
+  def has_manufactured(self):
+    return self.manufactured > 0
 
   def add(self, other):
     """
     Changes `self` by adding values from `other`.
     """
-    self.currency += other.currency
-    self.wood1 += other.wood1
-    self.wood2 += other.wood2
-    self.wood3 += other.wood3
-    self.stone1 += other.stone1
-    self.stone2 += other.stone2
-    self.gems += other.gems
-    self.spices += other.spices
-    self.coffee += other.coffee
-    self.yerba_mate += other.yerba_mate
-    self.alcohol += other.alcohol
-    self.salt += other.salt
-    self.opium += other.opium
-    self.tea += other.tea
-    self.pearls += other.pearls
-    self.perfumery += other.perfumery
-    self.textilesI += other.textilesI
-    self.textilesII += other.textilesII
-    self.craft += other.craft
-    self.ore += other.ore
-    self.coal += other.coal
-    self.metal1 += other.metal1
-    self.metal2 += other.metal2
-    self.food += other.food
-    self.fibre += other.fibre
-    self.guano += other.guano
-    self.saltpetre += other.saltpetre
-    self.sulfur += other.sulfur
-    self.gunpowder += other.gunpowder
+    self._update(other, lambda a, b: a + b)
+
+  def covers(self, other):
+    """
+    True if `self` has at least the same amount of resources in `other`.
+    """
+    return all([getattr(self, i) >= getattr(other, i) for i in self._list])
+
+  def subtract(self, other):
+    """
+    Changes `self` by subtracting values from `other`.
+    """
+    self._update(other, lambda a, b: a - b)
 
   def is_empty(self):
     """Return if all values are zero"""
-    return self.currency == 0 and \
-      self.wood1 == 0 and \
-      self.wood2 == 0 and \
-      self.wood3 == 0 and \
-      self.stone1 == 0 and \
-      self.stone2 == 0 and \
-      self.gems == 0 and \
-      self.spices == 0 and \
-      self.coffee == 0 and \
-      self.yerba_mate == 0 and \
-      self.alcohol == 0 and \
-      self.salt == 0 and \
-      self.opium == 0 and \
-      self.tea == 0 and \
-      self.pearls == 0 and \
-      self.perfumery == 0 and \
-      self.textilesI == 0 and \
-      self.textilesII == 0 and \
-      self.craft == 0 and \
-      self.ore == 0 and \
-      self.coal == 0 and \
-      self.metal1 == 0 and \
-      self.metal2 == 0 and \
-      self.food == 0 and \
-      self.fibre == 0 and \
-      self.guano == 0 and \
-      self.saltpetre == 0 and \
-      self.sulfur == 0 and \
-      self.gunpowder == 0
+    return all([getattr(self, i) == 0 for i in self._list])
+
+  def is_zero_or_positive(self):
+    """Return if all values are zero or positive"""
+    return all([getattr(self, i) >= 0 for i in self._list])
 
 class Player(models.Model):
   """
@@ -497,6 +395,9 @@ class Exchange(models.Model):
   state = models.CharField(max_length=1, choices=NEGOTIATION_STATE,
     default=UNKNOWN)
 
+  offer_date = models.DateTimeField(null = True, blank = True)
+  answer_date = models.DateTimeField(null = True, blank = True)
+
   def __str__(self):
     ret = ["pk={}, state={}".format(self.pk, self.get_state_display())]
     if self.offeror:
@@ -658,14 +559,27 @@ class Exchange(models.Model):
 
     self._check_if_empty()
     self._validate_bond()
-    self._validate_territory_ownership()
+    #self._validate_territory_ownership()
     self._validate_resource_sufficiency()
 
     if not self.offeror_as_bond and self._offeror_has_resources():
       self.offeror.player.resources.subtract(self.offeror_resources)
 
     self.state = self.WAITING
+    self.offer_date = timezone.now()
     self.save()
+    return True
+
+  def is_acceptable(self):
+    try:
+      if self.state != self.WAITING:
+        raise ValidationError(_("This exchange is not waiting for response."))
+
+      self._validate_bond()
+      self._validate_territory_ownership()
+      self._validate_resource_sufficiency()
+    except:
+      return False
     return True
 
   @transaction.atomic
@@ -723,6 +637,7 @@ class Exchange(models.Model):
     self.offeree.player.resources.save()
     self.offeror.player.resources.save()
     self.state = self.ACCEPTED
+    self.answer_date = timezone.now()
     self.save()
     return True
 
@@ -740,6 +655,7 @@ class Exchange(models.Model):
     self._validate_user_as_offeree(user=user)
     self._undo_offer()
     self.state = self.REJECTED
+    self.answer_date = timezone.now()
     self.save()
     return True
 
@@ -750,5 +666,60 @@ class Exchange(models.Model):
     self._validate_user_as_offeror(user=user)
     self._undo_offer()
     self.state = self.CANCELED
+    self.answer_date = timezone.now()
     self.save()
     return True
+
+  def is_waiting(self):
+    return self.state == self.WAITING
+
+  def is_accepted(self):
+    return self.state == self.ACCEPTED
+
+  def is_rejected(self):
+    return self.state == self.REJECTED
+
+  def is_canceled(self):
+    return self.state == self.CANCELED
+
+  def includes_currency(self):
+    return (self._offeror_has_resources() and self.offeror_resources.has_currency()) \
+      or (self._offeree_has_resources() and self.offeree_resources.has_currency())
+
+  def includes_agricultural(self):
+    return (self._offeror_has_resources() and self.offeror_resources.has_agricultural()) \
+      or (self._offeree_has_resources() and self.offeree_resources.has_agricultural())
+
+  def includes_manufactured(self):
+    return (self._offeror_has_resources() and self.offeror_resources.has_manufactured()) \
+      or (self._offeree_has_resources() and self.offeree_resources.has_manufactured())
+
+  def includes_resources(self):
+    return self._offeror_has_resources() or self._offeree_has_resources()
+
+  def includes_territories(self):
+    return self.offeror_territory or self.offeree_territory
+
+  def includes_bonds(self):
+    return self.offeror_bond or self.offeree_bond
+
+  def is_gift(self):
+    """
+    True if only one player is offer not empty in this exchange
+    """
+    offeror = (self._offeror_has_resources() or self.offeror_territory is not None or \
+      self.offeror_bond is not None) or False
+    offeree = (self._offeree_has_resources() or self.offeree_territory is not None or \
+      self.offeree_bond is not None) or False
+    return offeror ^ offeree
+
+  def get_resource_pie(self):
+    r = Resources()
+    if self._offeror_has_resources():
+      r.add(self.offeror_resources)
+    if self._offeree_has_resources():
+      r.add(self.offeree_resources)
+    return r.as_list()
+
+  def get_resource_colors(self):
+    return Resources.colors_as_str_list()

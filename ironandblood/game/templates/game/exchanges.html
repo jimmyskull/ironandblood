@@ -1,97 +1,373 @@
 {% extends 'game/base.html' %}
-{% load i18n %}
-{% load game_tags %}
+{% load staticfiles i18n game_tags %}
+
+{% block append_head %}
+<link href="{% static 'game/css/icheck/flat/green.css' %}" rel="stylesheet">
+<link href="{% static 'game/css/select2.min.css' %}" rel="stylesheet">
+<link href="{% static 'game/css/inbox.btn.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
 <div class="row">
-  <div class="col-md-6 col-sm-6 col-xs-12">
-    <div class="x_panel">
-      <div class="x_title">
-        <h2>{% trans 'New exchange' %}</h2>
-        <div class="clearfix"></div>
+ <div class="col-md-6 col-sm-6 col-xs-12">
+  <div id="new_exchange_panel" class="x_panel">
+   <div class="x_title">
+    <h2>{% trans 'New exchange' %}</h2>
+    <ul class="nav navbar-right panel_toolbox">
+     <li class="pull-right">
+      <a id="exchange_collpase_btn" class="collapse-link" href="#">
+       <i class="fa fa-chevron-up"></i>
+      </a>
+     </li>
+    </ul>
+    <div class="clearfix"></div>
+   </div>
+   <div class="x_content">
+    <form role="form">
+      <div class="form-group">
+       <input class="form-control" id="searchinput" type="search" placeholder="Search player…">
       </div>
-      <div class="x_content">
+      <div id="searchlist" class="list-group">
+       {% for u in users %}
+        <a class="list-group-item" href="{% url 'game:exchange' u %}"><span>{{ u }}</span></a>
+       {% endfor %}
+      </div>
+    </form>
+   </div>
+  </div>
+ </div>
+</div>
 
-        <select class="select2_single_user form-control">
-        {% for user in users %}
-          <option value="{{ user.pk }}">{{ user.username }}</option>
-        {% endfor %}
-        </select>
-
-        <table class="table table-hover">
-          <thead>
-            <tr>
+<div class="row">
+ <div class="col-md-6 col-sm-6 col-xs-12">
+  <div id="exchanges_panel" class="x_panel">
+   <div class="x_title">
+    <h2>{% trans 'Received offers' %} ({{ received_exchanges.count }})</h2>
+    <ul class="nav navbar-right panel_toolbox">
+     <li class="pull-right">
+      <a id="exchange_collpase_btn" class="collapse-link" href="#">
+       <i class="fa fa-chevron-up"></i>
+      </a>
+     </li>
+    </ul>
+    <div class="clearfix"></div>
+   </div>
+   <div class="x_content">
+     <table class="table table-hover">
+      </thead>
+       <tr>
+        <th></th>
+        <th>{% trans 'Player' %}</th>
+        <th>{% trans 'Status' %}</th>
+        <th>{% trans 'Content' %}</th>
+       </tr>
+      </thead>
+      <tbody>
+       {% for e in received_exchanges %}
+       <tr data-toggle="collapse" data-target="#exchange_detail_{{ e.pk }}" class="accordion-toggle">
+        <td>
+         {% if e.is_gift %}
+         <i class="fa fa-gift"></i>
+         {% else %}
+         <i class="fa fa-exchange"></i>
+         {% endif %}
+        </td>
+        <td>{{ e.offeree }}</td>
+        <td>
+         {% if e.is_waiting %}
+         <span class="label label-primary">{% trans 'Open' %}</span>
+          {% if e.is_acceptable %}
+          <span class="label label-info">{% trans 'Acceptable' %}</span>
+          {% else %}
+          <span class="label label-default">{% trans 'Cannot accept' %}</span>
+          {% endif %}
+         {% elif e.is_accepted %}
+         <span class="label label-success">{% trans 'Accepted' %}</span>
+         {% elif e.is_rejected %}
+         <span class="label label-warning">{% trans 'Rejected' %}</span>
+         {% elif e.is_canceled %}
+         <span class="label label-default">{% trans 'Canceled' %}</span>
+         {% endif %}
+        </td>
+        <td>
+         {% if e.includes_currency %}
+         <i class="fa fa-money" placeholder="text"></i>
+         {% endif %}
+         {% if e.includes_agricultural %}
+         <i class="fa fa-tree" placeholder="text"></i>
+         {% endif %}
+         {% if e.includes_manufactured %}
+         <i class="fa fa-gears" placeholder="text"></i>
+         {% endif %}
+         {% if e.includes_territories %}
+         <i class="fa fa-flag" placeholder="text"></i>
+         {% endif %}
+         {% if e.includes_bonds %}
+         <i class="fa fa-chain" placeholder="text"></i>
+         {% endif %}
+        </td>
+       </tr>
+        <tr>
+         <td colspan="12" class="hiddenRow">
+          <div class="accordian-body collapse" id="exchange_detail_{{ e.pk }}">
+          <small>
+           <table class="table table-hover">
+            </thead>
+             <tr>
               <th></th>
               <th>Send</th>
               <th>Receive</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th>As Bond?</th>
-              <th scope="row">
-                <input type="checkbox" class="flat">
-              </td>
-              <td>
-                <input type="checkbox" class="flat">
-              </td>
-            </tr>
-            {% for field_name in resource_field_list %}
-            <tr>
-              <th scope="row">
-                {% get_verbose_field_name request.user.player.resources field_name %}
-                ({% get_field_value request.user.player.resources field_name %}k)
-              </td>
-              <td>
-                <input class="knob" data-width="100" data-height="60" data-min="0" data-max="{% get_field_value request.user.player.resources field_name %}" data-displayPrevious=true  data-angleOffset=-100 data-angleArc=210 data-rotation="clockwise" data-fgColor="#34495E" data-step="10" value="0">
-              </td>
-              <td>
-                <input class="knob" data-width="100" data-height="60" data-min="0" data-displayPrevious=true  data-angleOffset=-100 data-angleArc=210 data-rotation="clockwise" data-fgColor="#34495E" data-step="10" value="0">
-              </td>
-            </tr>
-            {% endfor %}
-            <tr>
-              <th scope="row">
-                {% trans 'Territory' %}
-              </td>
-              <td>
-                <select class="select2_single form-control">
-                {% for territory in territories %}
-                  <option value="{{ territory.pk }}">{{ territory.name }} ({{ territory.owner.username }})</option>
-                {% endfor %}
-                </select>
-              </td>
-              <td>
-                <select class="select2_single form-control">
-                {% for territory in territories %}
-                  <option value="{{ territory.pk }}">{{ territory.name }} ({{ territory.owner.username }})</option>
-                {% endfor %}
-                </select>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">
-                {% trans 'Bond' %}
-              </td>
-              <td>
-                <select class="select2_single_bond form-control">
-                </select>
-              </td>
-              <td>
-                <select class="select2_single_bond form-control" value="-1">
-                </select>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      <div class="form-group">
-          <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-              <button type="submit" class="btn btn-primary">Cancel</button>
-              <button type="submit" class="btn btn-success">Submit</button>
+             </tr>
+            </thead>
+            <tbody>
+             {% if e.includes_currency %}
+             <tr>
+              <th>{% trans 'Currency:' %}</th>
+              <td>{{ e.offeror_resources.currency }}</td>
+              <td>{{ e.offeree_resources.currency }}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_manufactured %}
+             <tr>
+              <th>{% trans 'Manufactured Goods:' %}</th>
+              <td>{{ e.offeror_resources.manufactured }}</td>
+              <td>{{ e.offeree_resources.manufactured }}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_agricultural %}
+             <tr>
+              <th>{% trans 'Agricultural Goods:' %}</th>
+              <td>{{ e.offeror_resources.agricultural }}</td>
+              <td>{{ e.offeree_resources.agricultural }}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_territories %}
+             <tr>
+              <th>{% trans 'Territory:' %}</th>
+              <td>{% if e.offeror_territory %}{{ e.offeror_territory.name }} ({{ e.offeror_territory.owner.username }}){% endif %}</td>
+              <td>{% if e.offeree_territory %}{{ e.offeree_territory.name }} ({{ e.offeror_territory.owner.username }}){% endif %}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_bonds %}
+             <tr>
+              <th>{% trans 'Bond:' %}</th>
+              <td>{% if e.offeror_bond %}{{ e.offeror_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
+              <td>{% if e.offeree_bond %}{{ e.offeree_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
+             </tr>
+             {% endif %}
+            </tbody>
+           </table>
+            {% if e.offer_date %}
+             {% to_game_date e.offer_date as offerdate %}
+             <p>
+              {% trans 'Offered in ' %}{{ offerdate|date:"M d, Y" }}{% if e.answer_date %}{% to_game_date e.answer_date as answerdate %}{% if e.is_canceled %}{% trans ', canceled in ' %}{% else %}{% trans ', answered in ' %}{% endif %}{{ answerdate|date:"M d, Y" }}{% endif %}.
+             </p>
+            {% endif %}
+          </small>
+          {% if e.is_waiting %}
+          <form action="{% url 'game:update_exchange' e.pk %}" method="post" role="form">
+           {% csrf_token %}
+           <button type="submit" name="accept" class="btn btn-round btn-success btn-xs">{% trans 'Accept' %}</button>
+           <button type="submit" name="reject" class="btn btn-round btn-danger btn-xs">{% trans 'Reject' %}</button>
+          </form>
+          {% endif %}
           </div>
-      </div>
-      </div>
-    </div>
+         </td>
+        </tr>
+       {% endfor %}
+      </tbody>
+     </table>
+   </div>
   </div>
+ </div>
 </div>
+
+
+<div class="row">
+ <div class="col-md-6 col-sm-6 col-xs-12">
+  <div id="exchanges_panel" class="x_panel">
+   <div class="x_title">
+    <h2>{% trans 'Sent offers' %} ({{ sent_exchanges.count }})</h2>
+    <ul class="nav navbar-right panel_toolbox">
+     <li class="pull-right">
+      <a id="exchange_collpase_btn" class="collapse-link" href="#">
+       <i class="fa fa-chevron-up"></i>
+      </a>
+     </li>
+    </ul>
+    <div class="clearfix"></div>
+   </div>
+   <div class="x_content">
+     <table class="table table-hover">
+      </thead>
+       <tr>
+        <th></th>
+        <th>{% trans 'Player' %}</th>
+        <th>{% trans 'Status' %}</th>
+        <th>{% trans 'Content' %}</th>
+       </tr>
+      </thead>
+      <tbody>
+       {% for e in sent_exchanges %}
+       <tr data-toggle="collapse" data-target="#exchange_detail_{{ e.pk }}" class="accordion-toggle">
+        <td>
+         {% if e.is_gift %}
+         <i class="fa fa-gift"></i>
+         {% else %}
+         <i class="fa fa-exchange"></i>
+         {% endif %}
+        </td>
+        <td>{{ e.offeree }}</td>
+        <td>
+         {% if e.is_waiting %}
+         <span class="label label-primary">{% trans 'Open' %}</span>
+          {% if e.is_acceptable %}
+          <span class="label label-info">{% trans 'Acceptable' %}</span>
+          {% else %}
+          <span class="label label-default">{% trans 'Cannot accept' %}</span>
+          {% endif %}
+         {% elif e.is_accepted %}
+         <span class="label label-success">{% trans 'Accepted' %}</span>
+         {% elif e.is_rejected %}
+         <span class="label label-warning">{% trans 'Rejected' %}</span>
+         {% elif e.is_canceled %}
+         <span class="label label-default">{% trans 'Canceled' %}</span>
+         {% endif %}
+        </td>
+        <td>
+         {% if e.includes_currency %}
+         <i class="fa fa-money" title="Currency"></i>
+         {% endif %}
+         {% if e.includes_agricultural %}
+         <i class="fa fa-tree" title="Agricultural"></i>
+         {% endif %}
+         {% if e.includes_manufactured %}
+         <i class="fa fa-gears" title="Manufactured"></i>
+         {% endif %}
+         {% if e.includes_territories %}
+         <i class="fa fa-flag" title="Territory"></i>
+         {% endif %}
+         {% if e.includes_bonds %}
+         <i class="fa fa-chain" title="Bond"></i>
+         {% endif %}
+        </td>
+       </tr>
+        <tr>
+         <td colspan="12" class="hiddenRow">
+          <div class="accordian-body collapse" id="exchange_detail_{{ e.pk }}">
+          <small>
+           <table class="table table-hover">
+            </thead>
+             <tr>
+              <th></th>
+              <th>Send</th>
+              <th>Receive</th>
+             </tr>
+            </thead>
+            <tbody>
+             {% if e.includes_currency %}
+             <tr>
+              <th>{% trans 'Currency:' %}</th>
+              <td>{{ e.offeror_resources.currency }}</td>
+              <td>{{ e.offeree_resources.currency }}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_manufactured %}
+             <tr>
+              <th>{% trans 'Manufactured Goods:' %}</th>
+              <td>{{ e.offeror_resources.manufactured }}</td>
+              <td>{{ e.offeree_resources.manufactured }}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_agricultural %}
+             <tr>
+              <th>{% trans 'Agricultural Goods:' %}</th>
+              <td>{{ e.offeror_resources.agricultural }}</td>
+              <td>{{ e.offeree_resources.agricultural }}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_territories %}
+             <tr>
+              <th>{% trans 'Territory:' %}</th>
+              <td>{% if e.offeror_territory %}{{ e.offeror_territory.name }} ({{ e.offeror_territory.owner.username }}){% endif %}</td>
+              <td>{% if e.offeree_territory %}{{ e.offeree_territory.name }} ({{ e.offeror_territory.owner.username }}){% endif %}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_bonds %}
+             <tr>
+              <th>{% trans 'Bond:' %}</th>
+              <td>{% if e.offeror_bond %}{{ e.offeror_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
+              <td>{% if e.offeree_bond %}{{ e.offeree_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
+             </tr>
+             {% endif %}
+            </tbody>
+           </table>
+            {% if e.offer_date %}
+             {% to_game_date e.offer_date as offerdate %}
+             <p>
+              {% trans 'Offered in ' %}{{ offerdate|date:"M d, Y" }}{% if e.answer_date %}{% to_game_date e.answer_date as answerdate %}{% if e.is_canceled %}{% trans ', canceled in ' %}{% else %}{% trans ', answered in ' %}{% endif %}{{ answerdate|date:"M d, Y" }}{% endif %}.
+             </p>
+            {% endif %}
+          </small>
+          {% if e.is_waiting %}
+          <form action="{% url 'game:update_exchange' e.pk %}" method="post" role="form">
+           {% csrf_token %}
+           <button type="submit" name="cancel" class="btn btn-round btn-danger btn-xs">{% trans 'Cancel' %}</button>
+          </form>
+          {% endif %}
+          </div>
+         </td>
+        </tr>
+       {% endfor %}
+      </tbody>
+     </table>
+   </div>
+  </div>
+ </div>
+</div>
+
+<div class="container">
+ <div class="row">
+  <div id="inboxstyle">
+   <div class="fab btn-group show-on-hover dropup">
+    <div id="new_exchange_tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'New exchange' %}" style="margin-left: 42px;">
+     <button id="new_exchange_btn" type="button" class="btn btn-danger btn-io dropdown-toggle" data-toggle="dropdown" onclick="newExchange();">
+      <span class="fa-stack fa-2x">
+       <i class="fa fa-circle fa-stack-2x fab-backdrop"></i>
+       <i class="fa fa-plus fa-stack-1x fa-inverse fab-primary"></i>
+       <i class="fa fa-pencil fa-stack-1x fa-inverse fab-secondary"></i>
+      </span>
+     </button>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
+
+{% endblock %}
+
+{% block append_script %}
+<script src="{% static 'game/js/bootstrap-list-filter.min.js' %}"></script>
+<script src="{% static 'game/js/knob/jquery.knob.min.js' %}"></script>
+<script src="{% static 'game/js/icheck.min.js' %}"></script>
+<script src="{% static 'game/js/jquery.sparkline.min.js' %}"></script>
+<script src="{% static 'game/js/select2.full.min.js' %}"></script>
+<script>
+$('#searchlist').btsListFilter('#searchinput', {itemChild: 'span'});
+$('#new_exchange_panel').hide();
+
+function newExchange() {
+  $('#new_exchange_tooltip').mouseout();
+  $('#new_exchange_panel').show();
+  $('#new_exchange_btn').hide();
+}
+
+$('.fab').hover(function () {
+  $(this).toggleClass('active');
+});
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+});
+
+</script>
 {% endblock %}

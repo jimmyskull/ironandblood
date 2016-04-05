@@ -1,0 +1,147 @@
+{% extends 'game/base.html' %}
+{% load staticfiles i18n game_tags %}
+
+{% block append_head %}
+ <link href="{% static 'game/css/icheck/flat/green.css' %}" rel="stylesheet">
+ <link href="{% static 'game/css/bootstrap-select.min.css' %}" rel="stylesheet">
+ <link href="{% static 'game/css/bootstrap-switch.min.css' %}" rel="stylesheet">
+ {% endblock %}
+
+{% block content %}
+<div class="row">
+ <div class="col-md-6 col-sm-6 col-xs-12">
+  <div class="x_panel">
+   <div class="x_title">
+    <h2>{% blocktrans %}Exchange with {{ offeree }}{% endblocktrans %}</h2>
+    <div class="clearfix"></div>
+   </div>
+   <div class="x_content">
+    <form id="new_exchange_form" action="{% url 'game:exchange' offeree %}" method="post" role="form">
+     {% csrf_token %}
+     <table class="table table-hover">
+      </thead>
+       <tr>
+        <th></th>
+        <th>Send</th>
+        <th>Receive</th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+       {% for field in form %}
+        {% cycle '<th>' '' %}{% cycle field.label_tag '' %}{% cycle '</th>' '' %}
+        <td><small>{{ field }}{{ field.errors }}</small></td>
+        {% if not forloop.last %}{% cycle '' '</tr><tr>' %}{% endif %}
+       {% endfor %}
+      </tbody>
+     </table>
+     <div class="form-group">
+      <label for="offeror_territory">Give territory:</label>
+      <select id="offeror_territory" name="id_offeror_territory" class="selectpicker" data-live-search="true" value="">
+       <option territory="" value=""></option>
+       {% for territory in territories %}
+       <option territory="{{ territory.pk }}">
+        {{ territory.name }} ({{ territory.owner.username }})
+       </option>
+      {% endfor %}
+      </select>
+     </div>
+     <div class="form-group">
+      <label for="offeree_territory">Receive territory:</label>
+      <select id="offeree_territory" name="id_offeree_territory" class="selectpicker" data-live-search="true" value="">
+       <option territory="" value=""></option>
+       {% for territory in territories %}
+        <option value="{{ territory.pk }}">
+         {{ territory.name }} ({{ territory.owner.username }})
+        </option>
+       {% endfor %}
+      </select>
+     </div>
+     <div class="form-group">
+      <button type="submit" class="btn btn-success">{% trans 'Propose Exchange' %}</button>
+     </div>
+    </form>
+   </div>
+  </div>
+ </div>
+</div>
+{% endblock %}
+
+{% block append_script %}
+<script src="{% static 'game/js/knob/jquery.knob.min.js' %}"></script>
+<script src="{% static 'game/js/icheck.min.js' %}"></script>
+<script src="{% static 'game/js/bootstrap-select.min.js' %}"></script>
+<script src="{% static 'game/js/bootstrap-switch.min.js' %}"></script>
+
+<script>
+function sortlist(id) {
+  var lb = document.getElementById(id);
+  arrTexts = new Array();
+  for(i = 0; i < lb.length; i++)  {
+    arrTexts[i] = lb.options[i].text;
+  }
+  arrTexts.sort();
+  for(i = 0; i < lb.length; i++)  {
+    lb.options[i].text = arrTexts[i];
+    lb.options[i].value = arrTexts[i];
+  }
+}
+sortlist('offeror_territory'); sortlist('offeree_territory');
+$("[name='offeror_as_bond']").bootstrapSwitch();
+$("[name='offeree_as_bond']").bootstrapSwitch();
+
+$('#new_exchange_form').bind('keydown', function(e) {
+    if (e.keyCode == 13) {
+        e.preventDefault();
+    }
+});
+</script>
+
+<!-- knob -->
+<script>
+$(function($) {
+  $(".knob").knob({
+    draw: function() {
+      // "tron" case
+      if (this.$.data('skin') == 'tron') {
+
+        this.cursorExt = 0.3;
+
+        var a = this.arc(this.cv) // Arc
+          ,
+          pa // Previous arc
+          , r = 1;
+
+        this.g.lineWidth = this.lineWidth;
+
+        if (this.o.displayPrevious) {
+          pa = this.arc(this.v);
+          this.g.beginPath();
+          this.g.strokeStyle = this.pColor;
+          this.g.arc(this.xy, this.xy, this.radius - this.lineWidth,
+            pa.s, pa.e, pa.d);
+          this.g.stroke();
+        }
+
+        this.g.beginPath();
+        this.g.strokeStyle = r ? this.o.fgColor : this.fgColor;
+        this.g.arc(this.xy, this.xy, this.radius - this.lineWidth,
+          a.s, a.e, a.d);
+        this.g.stroke();
+
+        this.g.lineWidth = 2;
+        this.g.beginPath();
+        this.g.strokeStyle = this.o.fgColor;
+        this.g.arc(this.xy, this.xy,
+          this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0,
+          2 * Math.PI, false);
+        this.g.stroke();
+
+        return false;
+      }
+    }
+  });
+});
+</script>
+<!-- /knob -->
+{% endblock %}

@@ -1,23 +1,85 @@
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response, redirect
 from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_protect
 
-from .models import Player, Resources, Territory
+from .models import Player, Resources, Territory, Exchange
 
-@login_required(login_url='login')
+from .forms import ExchangeForm
+
+@login_required(login_url='game:login')
+@csrf_protect
 def exchanges(request):
-  print(request.user)
-  return render(request, 'game/exchanges.html',
-    {
-    'resource_field_list': Resources.resource_field_list,
-    'territories': Territory.objects.all(),
-    'users': User.objects.all()
+  return render(request, 'game/exchanges.html', {
+    'users': User.objects.all(),
+    'received_exchanges': Exchange.objects.filter(offeree = request.user).order_by('-offer_date'),
+    'sent_exchanges': Exchange.objects.filter(offeror = request.user).order_by('-offer_date')
+  })
+
+@login_required(login_url='game:login')
+def update_exchange(request, exchange_pk):
+  if request.POST:
+    accept = 'accept' in request.POST
+    reject = 'reject' in request.POST
+    cancel = 'cancel' in request.POST
+    valid = accept ^ reject ^ cancel
+    if valid:
+      try:
+        exch = Exchange.objects.get(pk = exchange_pk)
+        if accept:
+          exch.accept(user=request.user)
+          messages.success(request, _('Exchange accepted!'))
+        elif reject:
+          exch.reject(user=request.user)
+          messages.info(request, _('Exchange rejected.'))
+        elif cancel:
+          exch.cancel(user=request.user)
+          messages.info(request, _('Exchange canceled.'))
+        else:
+          raise ValidationError(_('Unknown operation.'))
+      except ValidationError as e:
+        if e.params:
+          messages.error(request, e.message % e.params)
+        else:
+          messages.error(request, e.message)
+  return HttpResponseRedirect(reverse('game:exchanges'))
+
+@login_required(login_url='game:login')
+def new_exchange(request, offeree):
+  offeree_obj = User.objects.get(username = offeree)
+  print('1 POST', request.POST)
+  form = ExchangeForm(request.user, offeree_obj, request.POST or None)
+  error_message = None
+  if form.is_valid():
+    print('2 Clean data', form.cleaned_data)
+    try:
+      id_offeror_territory = request.POST['id_offeror_territory']
+      id_offeree_territory = request.POST['id_offeree_territory']
+      resource = form.build_and_offer(request.user, offeree_obj,
+        id_offeror_territory = id_offeror_territory,
+        id_offeree_territory = id_offeree_territory)
+    except ValidationError as e:
+      if e.params:
+        messages.error(request, e.message % e.params)
+      else:
+        messages.error(request, e.message)
+    else:
+      messages.success(request, _('Exchange offer sent!'))
+      return HttpResponseRedirect(reverse('game:exchanges'))
+  return render(request, 'game/new_exchange.html', {
+    'form': form,
+    'offeree': offeree_obj,
+    'territories': Territory.objects.all()
     })
 
-@login_required(login_url='login')
+@login_required(login_url='game:login')
 def home(request):
   return render(request, 'game/home.html', {})
 
@@ -47,7 +109,7 @@ def login_view(request):
   context = {'alert_type': alert_type, 'state': state, 'username': username}
   return render_to_response('game/login.html', RequestContext(request, context))
 
-@login_required(login_url='login')
+@login_required(login_url='game:login')
 def profile(request):
   return render(request, 'game/home.html', {})
 

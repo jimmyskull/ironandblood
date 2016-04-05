@@ -1,5 +1,7 @@
 from django import template
 
+from game.config import Config
+
 register = template.Library()
 
 @register.simple_tag
@@ -16,3 +18,12 @@ def get_field_value(instance, field_name):
     """
     return getattr(instance, field_name)
 
+@register.simple_tag
+def current_game_date():
+  print('current', Config.current_game_date())
+  return Config.current_game_date()
+
+@register.simple_tag
+def to_game_date(date):
+  print('game date', Config.to_game_date(date))
+  return Config.to_game_date(date)
