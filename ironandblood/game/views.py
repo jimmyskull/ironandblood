@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response, redirect
 from django.template import RequestContext
@@ -16,11 +17,19 @@ from .forms import ExchangeForm
 
 @login_required(login_url='game:login')
 @csrf_protect
-def exchanges(request):
+def exchanges(request, state = Exchange.WAITING):
+  re = Exchange.objects.filter(offeree = request.user).order_by('-offer_date')
+  se = Exchange.objects.filter(offeror = request.user).order_by('-offer_date')
+
+  states = list(state)
+  re = re.filter(state__in = states)
+  se = se.filter(state__in = states)
+
   return render(request, 'game/exchanges.html', {
     'users': User.objects.all(),
-    'received_exchanges': Exchange.objects.filter(offeree = request.user).order_by('-offer_date'),
-    'sent_exchanges': Exchange.objects.filter(offeror = request.user).order_by('-offer_date')
+    'received_exchanges': re,
+    'sent_exchanges': se,
+    'states': states
   })
 
 @login_required(login_url='game:login')
