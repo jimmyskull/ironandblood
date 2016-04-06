@@ -4,14 +4,13 @@
 {% block append_head %}
 <link href="{% static 'game/css/icheck/flat/green.css' %}" rel="stylesheet">
 <link href="{% static 'game/css/select2.min.css' %}" rel="stylesheet">
-<link href="{% static 'game/css/inbox.btn.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="row">
  <div class="col-md-6 col-sm-6 col-xs-12">
   <div id="new_exchange_panel" class="x_panel">
-   <div class="x_title">
+   <div class="x_title" onmousedown="$('#exchange_collpase_btn').click();">
     <h2>{% trans 'New exchange' %}</h2>
     <ul class="nav navbar-right panel_toolbox">
      <li class="pull-right">
@@ -327,25 +326,6 @@
   </div>
  </div>
 </div>
-
-<div class="container">
- <div class="row">
-  <div id="inboxstyle">
-   <div class="fab btn-group show-on-hover dropup">
-    <div id="new_exchange_tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'New exchange' %}" style="margin-left: 42px;">
-     <button id="new_exchange_btn" type="button" class="btn btn-danger btn-io dropdown-toggle" data-toggle="dropdown" onclick="newExchange();">
-      <span class="fa-stack fa-2x">
-       <i class="fa fa-circle fa-stack-2x fab-backdrop"></i>
-       <i class="fa fa-plus fa-stack-1x fa-inverse fab-primary"></i>
-       <i class="fa fa-pencil fa-stack-1x fa-inverse fab-secondary"></i>
-      </span>
-     </button>
-    </div>
-   </div>
-  </div>
- </div>
-</div>
-
 {% endblock %}
 
 {% block append_script %}
@@ -356,7 +336,8 @@
 <script src="{% static 'game/js/select2.full.min.js' %}"></script>
 <script>
 $('#searchlist').btsListFilter('#searchinput', {itemChild: 'span'});
-$('#new_exchange_panel').hide();
+
+$('#exchange_collpase_btn').click();
 
 function newExchange() {
   $('#new_exchange_tooltip').mouseout();
@@ -370,6 +351,5 @@ $('.fab').hover(function () {
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()
 });
-
 </script>
 {% endblock %}
