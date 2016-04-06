@@ -85,13 +85,13 @@ class ExchangeForm(forms.Form):
         offeror_resources = offeror_res,
         offeror_territory = offeror_territory,
         offeror_bond = None,
-        offeror_as_bond = False,
+        offeror_as_bond = self.cleaned_data['offeror_as_bond'],
         offeror_as_bond_maturity = 0,
         offeree = offeree,
         offeree_resources = offeree_res,
         offeree_territory = offeree_territory,
         offeree_bond = None,
-        offeree_as_bond = False,
+        offeree_as_bond = self.cleaned_data['offeree_as_bond'],
         offeree_as_bond_maturity = 0
         )
       exch.offer(user = offeror)

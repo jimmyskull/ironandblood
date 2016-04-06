@@ -31,11 +31,11 @@
 <div class="row">
  <div class="col-md-6 col-sm-6 col-xs-12">
   <div id="new_exchange_panel" class="x_panel">
-   <div class="x_title" onmousedown="$('#exchange_collpase_btn').click();">
-    <h2>{% trans 'New exchange' %}</h2>
+   <div class="x_title">
+    <h2>{% trans 'Exchanges with player' %}</h2>
     <ul class="nav navbar-right panel_toolbox">
      <li class="pull-right">
-      <a id="exchange_collpase_btn" class="collapse-link" href="#">
+      <a id="exchange_with_player_collapse_btn" class="collapse-link" href="#">
        <i class="fa fa-chevron-up"></i>
       </a>
      </li>
@@ -67,7 +67,7 @@
     <h2>{% trans 'Received offers' %} ({{ received_exchanges.count }})</h2>
     <ul class="nav navbar-right panel_toolbox">
      <li class="pull-right">
-      <a id="exchange_collpase_btn" class="collapse-link" href="#">
+      <a id="received_exchange_collapse_btn" class="collapse-link" href="#">
        <i class="fa fa-chevron-up"></i>
       </a>
      </li>
@@ -113,19 +113,19 @@
         </td>
         <td>
          {% if e.includes_currency %}
-         <i class="fa fa-money" title="Currency"></i>
+         <i class="fa fa-money" title="{% trans 'Currency' %}"></i>
          {% endif %}
          {% if e.includes_agricultural %}
-         <i class="fa fa-tree" title="Agricultural"></i>
+         <i class="fa fa-tree" title="{% trans 'Agricultural Goods' %}"></i>
          {% endif %}
          {% if e.includes_manufactured %}
-         <i class="fa fa-gears" title="Manufactured"></i>
+         <i class="fa fa-gears" title="{% trans 'Manufactured Goods' %}"></i>
          {% endif %}
          {% if e.includes_territories %}
-         <i class="fa fa-flag" title="Territory"></i>
+         <i class="fa fa-flag" title="{% trans 'Territory' %}"></i>
          {% endif %}
-         {% if e.includes_bonds %}
-         <i class="fa fa-chain" title="Bond"></i>
+         {% if e.includes_bonds or e.offeror_as_bond or e.offeree_as_bond %}
+         <i class="fa fa-chain" title="{% trans 'Bond' %}"></i>
          {% endif %}
         </td>
        </tr>
@@ -142,6 +142,13 @@
              </tr>
             </thead>
             <tbody>
+             {% if e.offeror_as_bond or e.offeree_as_bond %}
+             <tr>
+              <th></th>
+              <td>{% if e.offeree_as_bond %}{% trans 'As Bond' %}{% endif %}</td>
+              <td>{% if e.offeror_as_bond %}{% trans 'As Bond' %}{% endif %}</td>
+             </tr>
+             {% endif %}
              {% if e.includes_currency %}
              <tr>
               <th>{% trans 'Currency:' %}</th>
@@ -185,6 +192,18 @@
               {% trans 'Offered in ' %}{{ offerdate|date:"M d, Y" }}{% if e.answer_date %}{% to_game_date e.answer_date as answerdate %}{% if e.is_canceled %}{% trans ', canceled in ' %}{% else %}{% trans ', answered in ' %}{% endif %}{{ answerdate|date:"M d, Y" }}{% endif %}.
              </p>
             {% endif %}
+            {% if e.offeror_as_bond %}
+            <p>
+            <i class="fa fa-info-circle" title="{% trans 'Warning' %}"></i>
+            {% trans 'If accepted, you will be the holder of a new Bond.  You will receive your part when the player decides to pay it.' %}
+            </p>
+            {% endif %}
+            {% if e.offeree_as_bond %}
+            <p>
+            <i class="fa fa-warning" title="{% trans 'Warning' %}"></i>
+            {% trans 'If accepted, you will be the borrower of a new Bond.  You will pay your part in the future.' %}
+            </p>
+            {% endif %}
           </small>
           {% if e.is_waiting %}
           <form action="{% url 'game:update_exchange' e.pk %}" method="post" role="form">
@@ -212,7 +231,7 @@
     <h2>{% trans 'Sent offers' %} ({{ sent_exchanges.count }})</h2>
     <ul class="nav navbar-right panel_toolbox">
      <li class="pull-right">
-      <a id="exchange_collpase_btn" class="collapse-link" href="#">
+      <a class="collapse-link" href="#">
        <i class="fa fa-chevron-up"></i>
       </a>
      </li>
@@ -258,19 +277,19 @@
         </td>
         <td>
          {% if e.includes_currency %}
-         <i class="fa fa-money" title="Currency"></i>
+         <i class="fa fa-money" title="{% trans 'Currency' %}"></i>
          {% endif %}
          {% if e.includes_agricultural %}
-         <i class="fa fa-tree" title="Agricultural"></i>
+         <i class="fa fa-tree" title="{% trans 'Agricultural Goods' %}"></i>
          {% endif %}
          {% if e.includes_manufactured %}
-         <i class="fa fa-gears" title="Manufactured"></i>
+         <i class="fa fa-gears" title="{% trans 'Manufactured Goods' %}"></i>
          {% endif %}
          {% if e.includes_territories %}
-         <i class="fa fa-flag" title="Territory"></i>
+         <i class="fa fa-flag" title="{% trans 'Territory' %}"></i>
          {% endif %}
-         {% if e.includes_bonds %}
-         <i class="fa fa-chain" title="Bond"></i>
+         {% if e.includes_bonds or e.offeror_as_bond or e.offeree_as_bond %}
+         <i class="fa fa-chain" title="{% trans 'Bond' %}"></i>
          {% endif %}
         </td>
        </tr>
@@ -287,6 +306,13 @@
              </tr>
             </thead>
             <tbody>
+             {% if e.offeror_as_bond or e.offeree_as_bond %}
+             <tr>
+              <th></th>
+              <td>{% if e.offeror_as_bond %}{% trans 'As Bond' %}{% endif %}</td>
+              <td>{% if e.offeree_as_bond %}{% trans 'As Bond' %}{% endif %}</td>
+             </tr>
+             {% endif %}
              {% if e.includes_currency %}
              <tr>
               <th>{% trans 'Currency:' %}</th>
@@ -357,20 +383,13 @@
 <script>
 $('#searchlist').btsListFilter('#searchinput', {itemChild: 'span'});
 
-$('#exchange_collpase_btn').click();
-
 function newExchange() {
   $('#new_exchange_tooltip').mouseout();
   $('#new_exchange_panel').show();
   $('#new_exchange_btn').hide();
 }
 
-$('.fab').hover(function () {
-  $(this).toggleClass('active');
-});
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-});
+$('#exchange_with_player_collapse_btn').click();
 
 $('#filter_exchanges').click(function() {
  console.log('test');

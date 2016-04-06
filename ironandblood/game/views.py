@@ -11,13 +11,23 @@ from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
 
-from .models import Player, Resources, Territory, Exchange
+from .models import Player, Resources, Territory, Exchange, Bond
 
 from .forms import ExchangeForm
 
+def build_context(request, context = {}):
+  ctx = {
+    'waiting_exchanges': Exchange.objects.filter(offeree = request.user, state =
+      Exchange.WAITING),
+    'pending_bonds': Bond.objects.filter(borrower = request.user, state =
+      Bond.PENDING),
+  }
+  ctx.update(context)
+  return ctx
+
 @login_required(login_url='game:login')
 @csrf_protect
-def exchanges(request, state = Exchange.WAITING):
+def exchanges(request, state=Exchange.WAITING):
   re = Exchange.objects.filter(offeree = request.user).order_by('-offer_date')
   se = Exchange.objects.filter(offeror = request.user).order_by('-offer_date')
 
@@ -25,12 +35,12 @@ def exchanges(request, state = Exchange.WAITING):
   re = re.filter(state__in = states)
   se = se.filter(state__in = states)
 
-  return render(request, 'game/exchanges.html', {
+  return render(request, 'game/exchanges.html', build_context(request, {
     'users': User.objects.all(),
     'received_exchanges': re,
     'sent_exchanges': se,
     'states': states
-  })
+  }))
 
 @login_required(login_url='game:login')
 def update_exchange(request, exchange_pk):
@@ -61,13 +71,11 @@ def update_exchange(request, exchange_pk):
   return HttpResponseRedirect(reverse('game:exchanges'))
 
 @login_required(login_url='game:login')
-def new_exchange(request, offeree):
+def new_exchange(request, offeree, state=Exchange.WAITING):
   offeree_obj = User.objects.get(username = offeree)
-  print('1 POST', request.POST)
   form = ExchangeForm(request.user, offeree_obj, request.POST or None)
   error_message = None
   if form.is_valid():
-    print('2 Clean data', form.cleaned_data)
     try:
       id_offeror_territory = request.POST['id_offeror_territory']
       id_offeree_territory = request.POST['id_offeree_territory']
@@ -82,11 +90,20 @@ def new_exchange(request, offeree):
     else:
       messages.success(request, _('Exchange offer sent!'))
       return HttpResponseRedirect(reverse('game:exchanges'))
-  return render(request, 'game/new_exchange.html', {
+  users = [request.user, offeree_obj]
+  exchange_history = Exchange.objects.filter(offeror__in = users,
+    offeree__in = users)
+
+  states = list(state)
+  exchange_history = exchange_history.filter(state__in = states)
+
+  return render(request, 'game/new_exchange.html', build_context(request, {
     'form': form,
     'offeree': offeree_obj,
-    'territories': Territory.objects.all()
-    })
+    'territories': Territory.objects.all(),
+    'exchange_history': exchange_history,
+    'states': states
+    }))
 
 @login_required(login_url='game:login')
 def home(request):
@@ -99,7 +116,10 @@ def home(request):
   user_legend = dict()
   for u in users:
     user_legend[u.username] = colors[u.pk % len(colors)]
-  return render(request, 'game/home.html', {'colors': dct, 'colors_legend': user_legend})
+  return render(request, 'game/home.html', build_context(request, {
+    'colors': dct,
+    'colors_legend': user_legend
+  }))
 
 @login_required(login_url='login')
 def logout_view(request):

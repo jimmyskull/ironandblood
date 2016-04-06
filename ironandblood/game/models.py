@@ -713,14 +713,3 @@ class Exchange(models.Model):
     offeree = (self._offeree_has_resources() or self.offeree_territory is not None or \
       self.offeree_bond is not None) or False
     return offeror ^ offeree
-
-  def get_resource_pie(self):
-    r = Resources()
-    if self._offeror_has_resources():
-      r.add(self.offeror_resources)
-    if self._offeree_has_resources():
-      r.add(self.offeree_resources)
-    return r.as_list()
-
-  def get_resource_colors(self):
-    return Resources.colors_as_str_list()

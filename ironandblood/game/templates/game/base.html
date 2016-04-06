@@ -12,6 +12,18 @@
  <link href="{% static 'game/fonts/css/font-awesome.min.css' %}" rel="stylesheet">
  <link href="{% static 'game/css/animate.min.css' %}" rel="stylesheet">
  <link href="{% static 'game/css/custom.css' %}" rel="stylesheet">
+ <style>
+ .badge-notify{
+  position: absolute;
+  top: 2px;
+  left: 8px;
+  padding: 3px 3px 2px 3px;
+  background-color: red;
+  color: white;
+  font-size: 9px;
+  border-radius: 4px;
+ }
+ </style>
  {% block append_head %}
  {% endblock %}
 </head>
@@ -51,13 +63,25 @@
         </a>
        </li>
        <li>
+        {% if pending_bonds.count %}
+        <span class="badge badge-notify">{{ waiting_exchanges.count }}</span>
+        {% endif %}
         <a href="{% url 'game:exchanges' %}">
          <i class="fa fa-gavel"></i>{% trans 'Exchanges' %}
         </a>
        </li>
        <li>
+        {% if pending_bonds.count %}
+        <span class="badge badge-notify">{{ pending_bonds.count }}</span>
+        {% endif %}
+        <a href="{% url 'game:exchanges' %}">
+         <i class="fa fa-chain"></i>{% trans 'Bonds' %}
+        </a>
+       </li>
+       <li>
         <a href="{% url 'game:profile' %}">
-        <i class="fa fa-user"></i>{% trans 'Profile' %}</a>
+         <i class="fa fa-user"></i>{% trans 'Profile' %}
+        </a>
        </li>
       </ul>
      </div>
@@ -132,6 +156,11 @@
 <script src="{% static 'game/js/pnotify/pnotify.core.js' %}"></script>
 <script src="{% static 'game/js/pnotify/pnotify.buttons.js' %}"></script>
 <script src="{% static 'game/js/pnotify/pnotify.nonblock.js' %}"></script>
+<script>
+$('.x_title').on('mousedown', function() {
+ $(this).find('.collapse-link').click();
+});
+</script>
 {% block append_script %}
 {% endblock %}
 

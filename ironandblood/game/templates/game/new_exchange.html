@@ -13,6 +13,13 @@
   <div class="x_panel">
    <div class="x_title">
     <h2>{% blocktrans %}Exchange with {{ offeree }}{% endblocktrans %}</h2>
+    <ul class="nav navbar-right panel_toolbox">
+     <li class="pull-right">
+      <a id="received_exchange_collapse_btn" class="collapse-link" href="#">
+       <i class="fa fa-chevron-up"></i>
+      </a>
+     </li>
+    </ul>
     <div class="clearfix"></div>
    </div>
    <div class="x_content">
@@ -65,6 +72,186 @@
   </div>
  </div>
 </div>
+
+<div class="row">
+ <div class="col-md-6 col-sm-6 col-xs-12">
+  <div id="exchanges_panel" class="x_panel">
+   <div class="x_title">
+    <h2>{% trans 'Exhange history with ' %}{{ offeree }} ({{ exchange_history.count }})</h2>
+    <ul class="nav navbar-right panel_toolbox">
+     <li class="pull-right">
+      <a id="exchange_collpase_btn" class="collapse-link" href="#">
+       <i class="fa fa-chevron-up"></i>
+      </a>
+     </li>
+    </ul>
+    <div class="clearfix"></div>
+   </div>
+   <div class="x_content">
+    <div class="btn-group" data-toggle="buttons">
+      <label id="filter_open" class="btn btn-primary-outline btn-xs{% if 'W' in states %} active{% endif %}">
+        <input name="filter_opts_open" type="checkbox"{% if 'W' in states %} checked{% endif %}> {% trans 'Open' %}
+      </label>
+      <label class="btn btn-primary-outline btn-xs{% if 'A' in states %} active{% endif %}">
+        <input name="filter_opts_accepted" type="checkbox"{% if 'A' in states %} checked{% endif %}> {% trans 'Accepted' %}
+      </label>
+      <label class="btn btn-primary-outline btn-xs{% if 'R' in states %} active{% endif %}">
+        <input name="filter_opts_rejected" type="checkbox"{% if 'R' in states %} checked{% endif %}> {% trans 'Rejected' %}
+      </label>
+      <label class="btn btn-primary-outline btn-xs{% if 'C' in states %} active{% endif %}">
+        <input name="filter_opts_canceled" type="checkbox"{% if 'C' in states %} checked{% endif %}> {% trans 'Canceled' %}
+      </label>
+      <a href="#" id="filter_exchanges" class="btn btn-primary btn-xs" role="button">Filter</a>
+    </div>
+   </div>
+   <div class="x_content">
+     <table class="table table-hover">
+      </thead>
+       <tr>
+        <th></th>
+        <th>{% trans 'Offer' %}</th>
+        <th>{% trans 'Status' %}</th>
+        <th>{% trans 'Content' %}</th>
+       </tr>
+      </thead>
+      <tbody>
+       {% for e in exchange_history %}
+       <tr data-toggle="collapse" data-target="#exchange_detail_{{ e.pk }}" class="accordion-toggle">
+        <td>
+         {% if e.is_gift %}
+         <i class="fa fa-gift"></i>
+         {% else %}
+         <i class="fa fa-exchange"></i>
+         {% endif %}
+        </td>
+        <td>{% ifequal request.user e.offeror %}{% trans 'Sent' %}{% else %}{% trans 'Received' %}{% endifequal %}</td>
+        <td>
+         {% if e.is_waiting %}
+         <span class="label label-primary">{% trans 'Open' %}</span>
+          {% if e.is_acceptable %}
+          <span class="label label-info">{% trans 'Acceptable' %}</span>
+          {% else %}
+          <span class="label label-default">{% trans 'Cannot accept' %}</span>
+          {% endif %}
+         {% elif e.is_accepted %}
+         <span class="label label-success">{% trans 'Accepted' %}</span>
+         {% elif e.is_rejected %}
+         <span class="label label-warning">{% trans 'Rejected' %}</span>
+         {% elif e.is_canceled %}
+         <span class="label label-default">{% trans 'Canceled' %}</span>
+         {% endif %}
+        </td>
+        <td>
+         {% if e.includes_currency %}
+         <i class="fa fa-money" title="{% trans 'Currency' %}"></i>
+         {% endif %}
+         {% if e.includes_agricultural %}
+         <i class="fa fa-tree" title="{% trans 'Agricultural Goods' %}"></i>
+         {% endif %}
+         {% if e.includes_manufactured %}
+         <i class="fa fa-gears" title="{% trans 'Manufactured Goods' %}"></i>
+         {% endif %}
+         {% if e.includes_territories %}
+         <i class="fa fa-flag" title="{% trans 'Territory' %}"></i>
+         {% endif %}
+         {% if e.includes_bonds or e.offeror_as_bond or e.offeree_as_bond %}
+         <i class="fa fa-chain" title="{% trans 'Bond' %}"></i>
+         {% endif %}
+        </td>
+       </tr>
+        <tr>
+         <td colspan="12" class="hiddenRow">
+          <div class="accordian-body collapse" id="exchange_detail_{{ e.pk }}">
+          <small>
+           <table class="table table-hover">
+            </thead>
+             <tr>
+              <th></th>
+              <th>Send</th>
+              <th>Receive</th>
+             </tr>
+            </thead>
+            <tbody>
+             {% if e.offeror_as_bond or e.offeree_as_bond %}
+             <tr>
+              <th></th>
+              <td>{% if e.offeree_as_bond %}{% trans 'As Bond' %}{% endif %}</td>
+              <td>{% if e.offeror_as_bond %}{% trans 'As Bond' %}{% endif %}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_currency %}
+             <tr>
+              <th>{% trans 'Currency:' %}</th>
+              <td>{{ e.offeree_resources.currency }}</td>
+              <td>{{ e.offeror_resources.currency }}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_manufactured %}
+             <tr>
+              <th>{% trans 'Manufactured Goods:' %}</th>
+              <td>{{ e.offeree_resources.manufactured }}</td>
+              <td>{{ e.offeror_resources.manufactured }}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_agricultural %}
+             <tr>
+              <th>{% trans 'Agricultural Goods:' %}</th>
+              <td>{{ e.offeree_resources.agricultural }}</td>
+              <td>{{ e.offeror_resources.agricultural }}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_territories %}
+             <tr>
+              <th>{% trans 'Territory:' %}</th>
+              <td>{% if e.offeree_territory %}{{ e.offeree_territory.name }} ({{ e.offeree_territory.owner.username }}){% endif %}</td>
+              <td>{% if e.offeror_territory %}{{ e.offeror_territory.name }} ({{ e.offeror_territory.owner.username }}){% endif %}</td>
+             </tr>
+             {% endif %}
+             {% if e.includes_bonds %}
+             <tr>
+              <th>{% trans 'Bond:' %}</th>
+              <td>{% if e.offeree_bond %}{{ e.offeree_bond.pk }} ({{ e.offeree_bond.pk }}){% endif %}</td>
+              <td>{% if e.offeror_bond %}{{ e.offeror_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
+             </tr>
+             {% endif %}
+            </tbody>
+           </table>
+            {% if e.offer_date %}
+             {% to_game_date e.offer_date as offerdate %}
+             <p>
+              {% trans 'Offered in ' %}{{ offerdate|date:"M d, Y" }}{% if e.answer_date %}{% to_game_date e.answer_date as answerdate %}{% if e.is_canceled %}{% trans ', canceled in ' %}{% else %}{% trans ', answered in ' %}{% endif %}{{ answerdate|date:"M d, Y" }}{% endif %}.
+             </p>
+            {% endif %}
+            {% if e.offeror_as_bond %}
+            <p>
+            <i class="fa fa-info-circle" title="{% trans 'Warning' %}"></i>
+            {% trans 'If accepted, you will be the holder of a new Bond.  You will receive your part when the player decides to pay it.' %}
+            </p>
+            {% endif %}
+            {% if e.offeree_as_bond %}
+            <p>
+            <i class="fa fa-warning" title="{% trans 'Warning' %}"></i>
+            {% trans 'If accepted, you will be the borrower of a new Bond.  You will pay your part in the future.' %}
+            </p>
+            {% endif %}
+          </small>
+          {% if e.is_waiting %}
+          <form action="{% url 'game:update_exchange' e.pk %}" method="post" role="form">
+           {% csrf_token %}
+           <button type="submit" name="accept" class="btn btn-round btn-success btn-xs">{% trans 'Accept' %}</button>
+           <button type="submit" name="reject" class="btn btn-round btn-danger btn-xs">{% trans 'Reject' %}</button>
+          </form>
+          {% endif %}
+          </div>
+         </td>
+        </tr>
+       {% endfor %}
+      </tbody>
+     </table>
+   </div>
+  </div>
+ </div>
+</div>
 {% endblock %}
 
 {% block append_script %}
@@ -94,6 +281,24 @@ $('#new_exchange_form').bind('keydown', function(e) {
     if (e.keyCode == 13) {
         e.preventDefault();
     }
+});
+
+$('#filter_exchanges').click(function() {
+ console.log('test');
+ var opts = '';
+ if ($('input[name="filter_opts_open"]').filter(':checked').val()) {
+  opts += 'W';
+ }
+ if ($('input[name="filter_opts_accepted"]').filter(':checked').val()) {
+  opts += 'A';
+ }
+ if ($('input[name="filter_opts_rejected"]').filter(':checked').val()) {
+  opts += 'R';
+ }
+ if ($('input[name="filter_opts_canceled"]').filter(':checked').val()) {
+  opts += 'C';
+ }
+ document.location = "{% url 'game:filter_exchanges_offer_without_opts' offeree %}" + opts;
 });
 </script>
 
