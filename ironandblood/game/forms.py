@@ -46,8 +46,9 @@ class ExchangeForm(forms.Form):
     resource = lambda u, name: getattr(u.player.resources, name)
 
     self.update('offeror_currency', 'data-max',
-      max(resource(offeror, 'currency'), 10) * 10)
-    self.update('offeree_currency', 'data-max', resource(offeree, 'currency'))
+      max(resource(offeror, 'currency'), 100) * 10)
+    self.update('offeree_currency', 'data-max',
+      max(resource(offeree, 'currency'), 100) * 10)
 
     self.update('offeror_manufactured', 'data-max',
       max(resource(offeror, 'manufactured'), 10) * 10)
