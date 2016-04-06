@@ -16,14 +16,74 @@ from .models import Player, Resources, Territory, Exchange, Bond
 from .forms import ExchangeForm
 
 def build_context(request, context = {}):
+  """
+  Build a context dictionary with information for the base html page.
+  """
   ctx = {
-    'waiting_exchanges': Exchange.objects.filter(offeree = request.user, state =
-      Exchange.WAITING),
-    'pending_bonds': Bond.objects.filter(borrower = request.user, state =
-      Bond.PENDING),
+    'waiting_exchanges': Exchange.objects.filter(offeree = request.user,
+      state = Exchange.WAITING),
+    'pending_bonds': Bond.objects.filter(borrower = request.user,
+      state = Bond.PENDING),
   }
   ctx.update(context)
   return ctx
+
+@login_required(login_url='game:login')
+@csrf_protect
+def bonds(request, state=Bond.PENDING):
+  rb = Bond.objects.filter(holder = request.user).order_by('-pk')
+  sb = Bond.objects.filter(borrower = request.user).order_by('-pk')
+
+  states = list(state)
+  rb = rb.filter(state__in = states)
+  sb = sb.filter(state__in = states)
+
+  return render(request, 'game/bonds.html', build_context(request, {
+    'users': User.objects.all(),
+    'as_holder_bonds': rb,
+    'as_borrower_bonds': sb,
+    'states': states
+  }))
+
+@login_required(login_url='game:login')
+def update_bond(request, bond_pk):
+  if request.POST:
+    pay = 'pay' in request.POST
+    forgive = 'forgive' in request.POST
+    valid = pay ^ forgive
+    if valid:
+      try:
+        bond = Bond.objects.get(pk = bond_pk)
+        if pay:
+          bond.pay(user=request.user)
+          messages.success(request, _('Bond paid!'))
+        elif forgive:
+          bond.forgive(user=request.user)
+          messages.info(request, _('Bond forgiven.'))
+        else:
+          raise ValidationError(_('Unknown operation.'))
+      except ValidationError as e:
+        if e.params:
+          messages.error(request, e.message % e.params)
+        else:
+          messages.error(request, e.message)
+  return HttpResponseRedirect(reverse('game:bonds'))
+
+@login_required(login_url='game:login')
+def bond_by_user(request, username, state=Bond.PENDING):
+  user = User.objects.get(username = username)
+  users = [request.user, user]
+  bonds_history = Bond.objects.filter(holder__in = users,
+    borrower__in = users)
+
+  states = list(state)
+  bonds_history = bonds_history.filter(state__in = states)
+
+  return render(request, 'game/bond_by_user.html', build_context(request, {
+    'user': user,
+    'bonds_history': bonds_history,
+    'states': states
+    }))
 
 @login_required(login_url='game:login')
 @csrf_protect
@@ -121,10 +181,10 @@ def home(request):
     'colors_legend': user_legend
   }))
 
-@login_required(login_url='login')
+@login_required(login_url='game:login')
 def logout_view(request):
   logout(request)
-  return redirect('login')
+  return redirect(reverse('game:login'))
 
 def login_view(request):
   state = _("Please log in above.")

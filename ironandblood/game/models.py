@@ -255,6 +255,11 @@ class Bond(models.Model):
   territory = models.ForeignKey(Territory, null=True, blank=True,
     related_name='+')
 
+  origin_exchange = models.ForeignKey('game.Exchange', null=True, blank=True,
+    related_name='+')
+  payment_exchange = models.ForeignKey('game.Exchange', null=True, blank=True,
+    related_name='+')
+
   maturity = models.IntegerField(default=0)
 
   state = models.CharField(max_length=1, choices=BOND_STATE, default=PENDING)
@@ -303,9 +308,50 @@ class Bond(models.Model):
                         offeree=self.holder)
     exchange.offer(user=user)
     exchange.accept(user=self.holder)
+    self.payment_exchange = exchange
     self.state = self.PAID
     self.save()
     return True
+
+  def is_payable(self, borrower=None):
+    if borrower is None:
+      borrower = self.borrower
+    exchange = Exchange(offeror=borrower,
+                        offeror_resources=self.resources,
+                        offeror_territory=self.territory,
+                        offeree=self.holder)
+    exchange.state = Exchange.WAITING
+    return exchange.is_acceptable()
+
+  def is_pending(self):
+    return self.state == self.PENDING
+
+  def is_paid(self):
+    return self.state == self.PAID
+
+  def is_forgiven(self):
+    return self.state == self.FORGIVEN
+
+  def includes_currency(self):
+    return self.includes_resources() and self.resources.has_currency()
+
+  def includes_agricultural(self):
+    return self.includes_resources() and self.resources.has_agricultural()
+
+  def includes_manufactured(self):
+    return self.includes_resources() and self.resources.has_manufactured()
+
+  def includes_resources(self):
+    return self.resources and not self.resources.is_empty()
+
+  def includes_territory(self):
+    return self.territory is not None
+
+  def get_creation_date(self):
+    return self.origin_exchange.answer_date
+
+  def get_payment_date(self):
+    return self.payment_exchange.answer_date
 
 class Exchange(models.Model):
   """
@@ -583,6 +629,12 @@ class Exchange(models.Model):
       return False
     return True
 
+  def could_offeror_pay_offeree_bond(self):
+    return self.offeree_bond.is_payable(borrower = self.offeror)
+
+  def could_offeree_pay_offeror_bond(self):
+    return self.offeror_bond.is_payable(borrower = self.offeree)
+
   @transaction.atomic
   def accept(self, user):
     """
@@ -602,6 +654,7 @@ class Exchange(models.Model):
       bond = Bond(borrower=self.offeror, holder=self.offeree,
         resources=self.offeror_resources,
         territory=self.offeror_territory,
+        origin_exchange=self,
         maturity=self.offeror_as_bond_maturity)
       bond.save()
     else:
@@ -620,6 +673,7 @@ class Exchange(models.Model):
       bond = Bond(borrower=self.offeree, holder=self.offeror,
         resources=self.offeree_resources,
         territory=self.offeree_territory,
+        origin_exchange=self,
         maturity=self.offeree_as_bond_maturity)
       bond.save()
     else:

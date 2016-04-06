@@ -32,7 +32,7 @@
  <div class="col-md-6 col-sm-6 col-xs-12">
   <div id="new_exchange_panel" class="x_panel">
    <div class="x_title">
-    <h2>{% trans 'Exchanges with player' %}</h2>
+    <h2>{% trans 'New exchange' %}</h2>
     <ul class="nav navbar-right panel_toolbox">
      <li class="pull-right">
       <a id="exchange_with_player_collapse_btn" class="collapse-link" href="#">
@@ -173,16 +173,149 @@
              {% if e.includes_territories %}
              <tr>
               <th>{% trans 'Territory:' %}</th>
-              <td>{% if e.offeree_territory %}{{ e.offeree_territory.name }} ({{ e.offeree_territory.owner.username }}){% endif %}</td>
-              <td>{% if e.offeror_territory %}{{ e.offeror_territory.name }} ({{ e.offeror_territory.owner.username }}){% endif %}</td>
+              <td>{% if e.offeree_territory %}{{ e.offeree_territory.name }} ({{ e.offeree_territory.owner }}){% endif %}</td>
+              <td>{% if e.offeror_territory %}{{ e.offeror_territory.name }} ({{ e.offeror_territory.owner }}){% endif %}</td>
              </tr>
              {% endif %}
              {% if e.includes_bonds %}
              <tr>
               <th>{% trans 'Bond:' %}</th>
-              <td>{% if e.offeree_bond %}{{ e.offeree_bond.pk }} ({{ e.offeree_bond.pk }}){% endif %}</td>
-              <td>{% if e.offeror_bond %}{{ e.offeror_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
+              <td>{% if e.offeree_bond %}{% trans 'Bond' %} #{{ e.offeree_bond.pk }}{% endif %}</td>
+              <td>{% if e.offeror_bond %}{% trans 'Bond' %} #{{ e.offeror_bond.pk }}{% endif %}</td>
              </tr>
+
+              {% endif %}
+              {% if e.offeree_bond %}
+               <tr>
+                <th>{% trans 'Details of Bond' %} #{{ e.offeree_bond.pk }}</th>
+                <td></td>
+                <td></td>
+               </tr>
+               <tr>
+                <td>
+                 {% trans 'Status' %}:
+                 {% if e.offeree_bond.is_pending %}
+                 <span class="label label-primary">{% trans 'Pending' %}</span>
+                  {% if e.could_offeror_pay_offeree_bond %}
+                  <span class="label label-info">{{ e.offeror }} {% trans 'could pay it' %}</span>
+                  {% else %}
+                  <span class="label label-default">{{ e.offeror }} {% trans 'couldn’t pay it' %}</span>
+                  {% endif %}
+                 {% elif e.offeree_bond.is_paid %}
+                 <span class="label label-success">{% trans 'Paid' %}</span>
+                 {% elif e.offeree_bond.is_forgiven %}
+                 <span class="label label-default">{% trans 'Forgiven' %}</span>
+                 {% endif %}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% if e.offeree_bond.includes_currency %}
+               <tr>
+                <td>
+                 {% trans 'Currency:' %}
+                 {{ e.offeree_bond.resources.currency }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeree_bond.includes_manufactured %}
+               <tr>
+                <td>
+                 {% trans 'Manufactured Goods:' %}
+                 {{ e.offeree_bond.resources.manufactured }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeree_bond.includes_agricultural %}
+               <tr>
+                <td>
+                 {% trans 'Agricultural Goods:' %}
+                 {{ e.offeree_bond.resources.agricultural }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeree_bond.includes_territory %}
+               <tr>
+                <td>
+                 {% trans 'Territory:' %}
+                 {% if e.offeree_bond.territory %}{{ e.offeree_bond.territory.name }} ({{ e.offeree_bond.territory.owner }}){% endif %}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+              {% endif %}
+               {% if e.offeror_bond %}
+               <tr>
+                <th>{% trans 'Details of Bond' %} #{{ e.offeror_bond.pk }}</th>
+                <td></td>
+                <td></td>
+               </tr>
+               <tr>
+                <td>
+                 {% trans 'Status' %}:
+                 {% if e.offeror_bond.is_pending %}
+                 <span class="label label-primary">{% trans 'Pending' %}</span>
+                  {% if e.could_offeree_pay_offeror_bond %}
+                  <span class="label label-info">{% trans 'You could pay it' %}</span>
+                  {% else %}
+                  <span class="label label-default">{% trans 'You couldn’t pay it' %}</span>
+                  {% endif %}
+                 {% elif e.offeror_bond.is_paid %}
+                 <span class="label label-success">{% trans 'Paid' %}</span>
+                 {% elif e.offeror_bond.is_forgiven %}
+                 <span class="label label-default">{% trans 'Forgiven' %}</span>
+                 {% endif %}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% if e.offeror_bond.includes_currency %}
+               <tr>
+                <td>
+                 {% trans 'Currency:' %}
+                 {{ e.offeror_bond.resources.currency }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeror_bond.includes_manufactured %}
+               <tr>
+                <td>
+                 {% trans 'Manufactured Goods:' %}
+                 {{ e.offeror_bond.resources.manufactured }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeror_bond.includes_agricultural %}
+               <tr>
+                <td>
+                 {% trans 'Agricultural Goods:' %}
+                 {{ e.offeror_bond.resources.agricultural }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeror_bond.includes_territory %}
+               <tr>
+                <td>
+                 {% trans 'Territory:' %}
+                 {% if e.offeror_bond.territory %}{{ e.offeror_bond.territory.name }} ({{ e.offeror_bond.territory.owner }}){% endif %}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
              {% endif %}
             </tbody>
            </table>
@@ -195,13 +328,13 @@
             {% if e.offeror_as_bond %}
             <p>
             <i class="fa fa-info-circle" title="{% trans 'Warning' %}"></i>
-            {% trans 'If accepted, you will be the holder of a new Bond.  You will receive your part when the player decides to pay it.' %}
+            {% trans 'If accepted, you will receive your part when the player decides to pay the Bond.' %}
             </p>
             {% endif %}
             {% if e.offeree_as_bond %}
             <p>
             <i class="fa fa-warning" title="{% trans 'Warning' %}"></i>
-            {% trans 'If accepted, you will be the borrower of a new Bond.  You will pay your part in the future.' %}
+            {% trans 'If accepted, you will send your part in the future, when you pay the Bond.' %}
             </p>
             {% endif %}
           </small>
@@ -342,11 +475,143 @@
              </tr>
              {% endif %}
              {% if e.includes_bonds %}
-             <tr>
-              <th>{% trans 'Bond:' %}</th>
-              <td>{% if e.offeror_bond %}{{ e.offeror_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
-              <td>{% if e.offeree_bond %}{{ e.offeree_bond.pk }} ({{ e.offeree_bond.pk }}){% endif %}</td>
-             </tr>
+              <tr>
+               <th>{% trans 'Bond:' %}</th>
+               <td>{% if e.offeror_bond %}{% trans 'Bond' %} #{{ e.offeror_bond.pk }}{% endif %}</td>
+               <td>{% if e.offeree_bond %}{% trans 'Bond' %} #{{ e.offeree_bond.pk }}{% endif %}</td>
+              </tr>
+              {% if e.offeror_bond %}
+               <tr>
+                <th>{% trans 'Details of Bond' %} #{{ e.offeror_bond.pk }}</th>
+                <td></td>
+                <td></td>
+               </tr>
+               <tr>
+                <td>
+                 {% trans 'Status' %}:
+                 {% if e.offeror_bond.is_pending %}
+                 <span class="label label-primary">{% trans 'Pending' %}</span>
+                  {% if e.could_offeree_pay_offeror_bond %}
+                  <span class="label label-info">{{ e.offeree }} {% trans 'could pay it' %}</span>
+                  {% else %}
+                  <span class="label label-default">{{ e.offeree }} {% trans 'couldn’t pay it' %}</span>
+                  {% endif %}
+                 {% elif e.offeror_bond.is_paid %}
+                 <span class="label label-success">{% trans 'Paid' %}</span>
+                 {% elif e.offeror_bond.is_forgiven %}
+                 <span class="label label-default">{% trans 'Forgiven' %}</span>
+                 {% endif %}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% if e.offeror_bond.includes_currency %}
+               <tr>
+                <td>
+                 {% trans 'Currency:' %}
+                 {{ e.offeror_bond.resources.currency }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeror_bond.includes_manufactured %}
+               <tr>
+                <td>
+                 {% trans 'Manufactured Goods:' %}
+                 {{ e.offeror_bond.resources.manufactured }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeror_bond.includes_agricultural %}
+               <tr>
+                <td>
+                 {% trans 'Agricultural Goods:' %}
+                 {{ e.offeror_bond.resources.agricultural }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeror_bond.includes_territory %}
+               <tr>
+                <td>
+                 {% trans 'Territory:' %}
+                 {% if e.offeror_bond.territory %}{{ e.offeror_bond.territory.name }} ({{ e.offeror_bond.territory.owner }}){% endif %}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+              {% endif %}
+              {% if e.offeree_bond %}
+               <tr>
+                <th>{% trans 'Details of Bond' %} #{{ e.offeree_bond.pk }}</th>
+                <td></td>
+                <td></td>
+               </tr>
+               <tr>
+                <td>
+                 {% trans 'Status' %}:
+                 {% if e.offeree_bond.is_pending %}
+                 <span class="label label-primary">{% trans 'Pending' %}</span>
+                  {% if e.could_offeror_pay_offeree_bond %}
+                  <span class="label label-info">{% trans 'You could pay it' %}</span>
+                  {% else %}
+                  <span class="label label-default">{% trans 'You couldn’t pay it' %}</span>
+                  {% endif %}
+                 {% elif e.offeree_bond.is_paid %}
+                 <span class="label label-success">{% trans 'Paid' %}</span>
+                 {% elif e.offeree_bond.is_forgiven %}
+                 <span class="label label-default">{% trans 'Forgiven' %}</span>
+                 {% endif %}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% if e.offeree_bond.includes_currency %}
+               <tr>
+                <td>
+                 {% trans 'Currency:' %}
+                 {{ e.offeree_bond.resources.currency }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeree_bond.includes_manufactured %}
+               <tr>
+                <td>
+                 {% trans 'Manufactured Goods:' %}
+                 {{ e.offeree_bond.resources.manufactured }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeree_bond.includes_agricultural %}
+               <tr>
+                <td>
+                 {% trans 'Agricultural Goods:' %}
+                 {{ e.offeree_bond.resources.agricultural }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+               {% if e.offeree_bond.includes_territory %}
+               <tr>
+                <td>
+                 {% trans 'Territory:' %}
+                 {% if e.offeree_bond.territory %}{{ e.offeree_bond.territory.name }} ({{ e.offeree_bond.territory.owner }}){% endif %}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
+              {% endif %}
              {% endif %}
             </tbody>
            </table>

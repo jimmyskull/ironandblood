@@ -58,12 +58,7 @@
       <h3>{% trans 'Menu' %}</h3>
       <ul class="nav side-menu">
        <li>
-        <a href="{% url 'game:home' %}">
-         <i class="fa fa-home"></i>{% trans 'Home' %}
-        </a>
-       </li>
-       <li>
-        {% if pending_bonds.count %}
+        {% if waiting_exchanges.count %}
         <span class="badge badge-notify">{{ waiting_exchanges.count }}</span>
         {% endif %}
         <a href="{% url 'game:exchanges' %}">
@@ -74,7 +69,7 @@
         {% if pending_bonds.count %}
         <span class="badge badge-notify">{{ pending_bonds.count }}</span>
         {% endif %}
-        <a href="{% url 'game:exchanges' %}">
+        <a href="{% url 'game:bonds' %}">
          <i class="fa fa-chain"></i>{% trans 'Bonds' %}
         </a>
        </li>
@@ -87,25 +82,6 @@
      </div>
     </div>
     {% endblock %}
-    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
-     <div class="menu_section">
-     <small>
-      <ul class="nav side-menu">
-       <li>&nbsp;
-        <i class="fa fa-money"></i>{{ request.user.player.resources.currency }}
-        </a>
-       </li>
-       <li>&nbsp;
-        <i class="fa fa-tree"></i>{{ request.user.player.resources.agricultural }}
-        </a>
-       </li>
-       <li>&nbsp;
-        <i class="fa fa-gears"></i>{{ request.user.player.resources.manufactured }}
-       </li>
-      </ul>
-      </small>
-     </div>
-    </div>
    </div>
   </div>
   {% block navigation %}
@@ -115,6 +91,35 @@
      <div class="nav toggle">
       <a id="menu_toggle"><i class="fa fa-bars"></i></a>
      </div>
+
+     <ul class="nav navbar-nav navbar-right">
+      <li class="">
+       <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+        <img src="{% static 'game/images/avatar/7.png' %}" alt="">{{ request.user }}
+        <span class=" fa fa-angle-down"></span>
+       </a>
+       <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
+        <li><a href="javascript:;">{% trans 'Profile' %}</a>
+        </li>
+        <li>
+         <a href="javascript:;">
+          <span>{% trans 'Settings' %}</span>
+         </a>
+        </li>
+        <li>
+         <a href="javascript:;">{% trans 'Help' %}</a>
+        </li>
+        <li>
+         <a href="{% url 'game:logout' %}"><i class="fa fa-sign-out pull-right"></i> {% trans 'Log Out' %}</a>
+        </li>
+       </ul>
+      </li>
+      <li class="navbar-text">
+       <i class="fa fa-money"></i> {{ request.user.player.resources.currency }}
+       <i class="fa fa-tree"></i> {{ request.user.player.resources.agricultural }}
+       <i class="fa fa-gears"></i> {{ request.user.player.resources.manufactured }}
+      </li>
+     </ul>
     </nav>
    </div>
   </div>

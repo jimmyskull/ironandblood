@@ -1,6 +1,8 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
-from .models import Exchange, Resources, Territory
+from .models import Exchange, Resources, Territory, Bond
 from .widgets import KnobInput
 
 class ExchangeForm(forms.Form):
@@ -35,23 +37,27 @@ class ExchangeForm(forms.Form):
   offeree_agricultural = forms.IntegerField(
     widget = KnobInput(color = Resources.color('agricultural')))
 
+  offeror_bond = forms.IntegerField(label = 'Negotiate Bond #', required=False)
+  offeree_bond = forms.IntegerField(required=False)
+
   def __init__(self, offeror, offeree, *args, **kwargs):
     super(forms.Form, self).__init__(*args, **kwargs)
 
     resource = lambda u, name: getattr(u.player.resources, name)
 
-    self.update('offeror_currency', 'data-max', resource(offeror, 'currency'))
+    self.update('offeror_currency', 'data-max',
+      min(resource(offeror, 'currency'), 100) * 10)
     self.update('offeree_currency', 'data-max', resource(offeree, 'currency'))
 
     self.update('offeror_manufactured', 'data-max',
-      resource(offeror, 'manufactured'))
+      min(resource(offeror, 'manufactured'), 10) * 10)
     self.update('offeree_manufactured', 'data-max',
-      resource(offeree, 'manufactured'))
+      min(resource(offeree, 'manufactured'), 10) * 10)
 
     self.update('offeror_agricultural', 'data-max',
-      resource(offeror, 'agricultural'))
+      min(resource(offeror, 'agricultural'), 10) * 10)
     self.update('offeree_agricultural', 'data-max',
-      resource(offeree, 'agricultural'))
+      min(resource(offeree, 'agricultural'), 10) * 10)
 
   def update(self, field_name, attr, value):
     self.fields[field_name].widget.attrs[attr] = value
@@ -70,27 +76,39 @@ class ExchangeForm(forms.Form):
     offeree_res.save()
 
     offeror_territory = None
-    print(id_offeror_territory)
     if id_offeror_territory:
-      print("name", id_offeror_territory.split(' (')[0])
       offeror_territory = Territory.objects.get(name = id_offeror_territory.split(' (')[0])
 
     offeree_territory = None
     if id_offeree_territory:
       offeree_territory = Territory.objects.get(name = id_offeree_territory.split(' (')[0])
 
+    offeror_bond = None
+    if self.cleaned_data['offeror_bond']:
+      try:
+        offeror_bond = Bond.objects.get(pk=self.cleaned_data['offeror_bond'])
+      except Bond.DoesNotExist:
+        raise ValidationError(_("Invalid Bond number."))
+
+    offeree_bond = None
+    if self.cleaned_data['offeree_bond']:
+      try:
+        offeree_bond = Bond.objects.get(pk=self.cleaned_data['offeree_bond'])
+      except Bond.DoesNotExist:
+        raise ValidationError(_("Invalid Bond number."))
+
     try:
       exch = Exchange(
         offeror = offeror,
         offeror_resources = offeror_res,
         offeror_territory = offeror_territory,
-        offeror_bond = None,
+        offeror_bond = offeror_bond,
         offeror_as_bond = self.cleaned_data['offeror_as_bond'],
         offeror_as_bond_maturity = 0,
         offeree = offeree,
         offeree_resources = offeree_res,
         offeree_territory = offeree_territory,
-        offeree_bond = None,
+        offeree_bond = offeree_bond,
         offeree_as_bond = self.cleaned_data['offeree_as_bond'],
         offeree_as_bond_maturity = 0
         )

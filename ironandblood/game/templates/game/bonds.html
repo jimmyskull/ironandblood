@@ -1,0 +1,343 @@
+{% extends 'game/base.html' %}
+{% load staticfiles i18n game_tags %}
+
+{% block append_head %}
+<link href="{% static 'game/css/icheck/flat/green.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+ <div class="col-md-6 col-sm-6 col-xs-12">
+  <div class="x_content">
+   <div class="btn-group" data-toggle="buttons">
+     <label id="filter_open" class="btn btn-primary-outline btn-sm{% if 'W' in states %} active{% endif %}">
+       <input name="filter_opts_pending" type="checkbox"{% if 'W' in states %} checked{% endif %}> {% trans 'Pending' %}
+     </label>
+     <label class="btn btn-primary-outline btn-sm{% if 'P' in states %} active{% endif %}">
+       <input name="filter_opts_paid" type="checkbox"{% if 'P' in states %} checked{% endif %}> {% trans 'Paid' %}
+     </label>
+     <label class="btn btn-primary-outline btn-sm{% if 'F' in states %} active{% endif %}">
+       <input name="filter_opts_forgiven" type="checkbox"{% if 'F' in states %} checked{% endif %}> {% trans 'Forgiven' %}
+     </label>
+     <a href="#" id="filter_bonds" class="btn btn-primary btn-sm" role="button">Filter</a>
+   </div>
+  </div>
+ </div>
+</div>
+
+<div class="row">
+ <div class="col-md-6 col-sm-6 col-xs-12">
+  <div id="new_bond_panel" class="x_panel">
+   <div class="x_title">
+    <h2>{% trans 'Bonds with player' %}</h2>
+    <ul class="nav navbar-right panel_toolbox">
+     <li class="pull-right">
+      <a id="bond_with_player_collapse_btn" class="collapse-link" href="#">
+       <i class="fa fa-chevron-up"></i>
+      </a>
+     </li>
+    </ul>
+    <div class="clearfix"></div>
+   </div>
+   <div class="x_content">
+    <form role="form">
+      <div class="form-group">
+       <input class="form-control" id="searchinput" type="search" placeholder="Search player…">
+      </div>
+      <div id="searchlist" class="list-group">
+       {% for usr in users %}
+        {% ifnotequal usr request.user %}
+        <a class="list-group-item" href="{% url 'game:bond' usr %}"><span>{{ usr }}</span></a>
+        {% endifnotequal %}
+       {% endfor %}
+      </div>
+    </form>
+   </div>
+  </div>
+ </div>
+</div>
+
+<div class="row">
+ <div class="col-md-6 col-sm-6 col-xs-12">
+  <div id="bonds_panel" class="x_panel">
+   <div class="x_title">
+    <h2>{% trans 'Bonds as borrower' %} ({{ as_borrower_bonds.count }}) <small>{% trans 'Bonds you need to pay' %}</small></h2>
+    <ul class="nav navbar-right panel_toolbox">
+     <li class="pull-right">
+      <a id="received_bond_collapse_btn" class="collapse-link" href="#">
+       <i class="fa fa-chevron-up"></i>
+      </a>
+     </li>
+    </ul>
+    <div class="clearfix"></div>
+   </div>
+   <div class="x_content">
+   {% blocktrans %}You can negotiate a bond you need to pay by putting the
+   bond number “Bond #” when offering a new exchange.
+   That way, you offer to pass the payment responsibility to the other player.
+   {% endblocktrans %}
+   </div>
+   <div class="x_content">
+     <table class="table table-hover">
+      </thead>
+       <tr>
+        <th>Bond #</th>
+        <th>{% trans 'Holder' %}</th>
+        <th>{% trans 'Status' %}</th>
+        <th>{% trans 'Content' %}</th>
+       </tr>
+      </thead>
+      <tbody>
+       {% for b in as_borrower_bonds %}
+       <tr data-toggle="collapse" data-target="#borrower_bond_detail_{{ b.pk }}" class="accordion-toggle">
+        <td>
+         {{ b.pk }}
+        </td>
+        <td>{{ b.holder }}</td>
+        <td>
+         {% if b.is_pending %}
+         <span class="label label-primary">{% trans 'Pending' %}</span>
+          {% if b.is_payable %}
+          <span class="label label-info">{% trans 'Payable' %}</span>
+          {% else %}
+          <span class="label label-default">{% trans 'Cannot pay' %}</span>
+          {% endif %}
+         {% elif b.is_paid %}
+         <span class="label label-success">{% trans 'Paid' %}</span>
+         {% elif b.is_forgiven %}
+         <span class="label label-default">{% trans 'Forgiven' %}</span>
+         {% endif %}
+        </td>
+        <td>
+         {% if b.includes_currency %}
+         <i class="fa fa-money" title="{% trans 'Currency' %}"></i>
+         {% endif %}
+         {% if b.includes_agricultural %}
+         <i class="fa fa-tree" title="{% trans 'Agricultural Goods' %}"></i>
+         {% endif %}
+         {% if b.includes_manufactured %}
+         <i class="fa fa-gears" title="{% trans 'Manufactured Goods' %}"></i>
+         {% endif %}
+         {% if b.includes_territory %}
+         <i class="fa fa-flag" title="{% trans 'Territory' %}"></i>
+         {% endif %}
+        </td>
+       </tr>
+        <tr>
+         <td colspan="12" class="hiddenRow">
+          <div class="accordian-body collapse" id="borrower_bond_detail_{{ b.pk }}">
+          <small>
+           <table class="table table-hover">
+            </thead>
+             <tr>
+              <th></th>
+              <th>Payment</th>
+             </tr>
+            </thead>
+            <tbody>
+             {% if b.includes_currency %}
+             <tr>
+              <th>{% trans 'Currency:' %}</th>
+              <td>{{ b.resources.currency }}</td>
+             </tr>
+             {% endif %}
+             {% if b.includes_manufactured %}
+             <tr>
+              <th>{% trans 'Manufactured Goods:' %}</th>
+              <td>{{ b.resources.manufactured }}</td>
+             </tr>
+             {% endif %}
+             {% if b.includes_agricultural %}
+             <tr>
+              <th>{% trans 'Agricultural Goods:' %}</th>
+              <td>{{ b.resources.agricultural }}</td>
+             </tr>
+             {% endif %}
+             {% if b.includes_territory %}
+             <tr>
+              <th>{% trans 'Territory:' %}</th>
+              <td>{% if b.territory %}{{ b.territory.name }} ({{ b.territory.owner.username }}){% endif %}</td>
+             </tr>
+             {% endif %}
+            </tbody>
+           </table>
+          </small>
+          {% if b.get_creation_date %}
+           {% to_game_date b.get_creation_date as offerdate %}
+           <p>
+            {% trans 'Created in ' %}{{ offerdate|date:"M d, Y" }}{% if b.is_paid %}{% to_game_date b.get_payment_date as answerdate %}{% trans ', paid in ' %}{{ answerdate|date:"M d, Y" }}{% endif %}{% if b.is_forgiven %}{% trans ', but it has been forgiven.' %}{% endif %}.
+           </p>
+          {% endif %}
+          {% if b.is_pending and b.is_payable %}
+          <form action="{% url 'game:update_bond' b.pk %}" method="post" role="form">
+           {% csrf_token %}
+           <button type="submit" name="pay" class="btn btn-round btn-success btn-xs">{% trans 'Pay' %}</button>
+          </form>
+          {% endif %}
+          </div>
+         </td>
+        </tr>
+       {% endfor %}
+      </tbody>
+     </table>
+   </div>
+  </div>
+ </div>
+</div>
+
+
+<div class="row">
+ <div class="col-md-6 col-sm-6 col-xs-12">
+  <div id="bonds_panel" class="x_panel">
+   <div class="x_title">
+    <h2>{% trans 'Bonds as holder' %} ({{ as_holder_bonds.count }}) <small>{% trans 'You will receive these payments' %}</small></h2>
+    <ul class="nav navbar-right panel_toolbox">
+     <li class="pull-right">
+      <a class="collapse-link" href="#">
+       <i class="fa fa-chevron-up"></i>
+      </a>
+     </li>
+    </ul>
+    <div class="clearfix"></div>
+   </div>
+   <div class="x_content">
+     <table class="table table-hover">
+      </thead>
+       <tr>
+        <th>Bond #</th>
+        <th>{% trans 'Borrower' %}</th>
+        <th>{% trans 'Status' %}</th>
+        <th>{% trans 'Content' %}</th>
+       </tr>
+      </thead>
+      <tbody>
+       {% for b in as_holder_bonds %}
+       <tr data-toggle="collapse" data-target="#holder_bond_detail_{{ b.pk }}" class="accordion-toggle">
+        <td>
+         {{ b.pk }}
+        </td>
+        <td>{{ b.borrower }}</td>
+        <td>
+         {% if b.is_pending %}
+         <span class="label label-primary">{% trans 'Pending' %}</span>
+          {% if b.is_payable %}
+          <span class="label label-info">{% trans 'Can be paid' %}</span>
+          {% else %}
+          <span class="label label-default">{% trans 'Cannot be paid' %}</span>
+          {% endif %}
+         {% elif b.is_paid %}
+         <span class="label label-success">{% trans 'Paid' %}</span>
+         {% elif b.is_forgiven %}
+         <span class="label label-default">{% trans 'Forgiven' %}</span>
+         {% endif %}
+        </td>
+        <td>
+         {% if b.includes_currency %}
+         <i class="fa fa-money" title="{% trans 'Currency' %}"></i>
+         {% endif %}
+         {% if b.includes_agricultural %}
+         <i class="fa fa-tree" title="{% trans 'Agricultural Goods' %}"></i>
+         {% endif %}
+         {% if b.includes_manufactured %}
+         <i class="fa fa-gears" title="{% trans 'Manufactured Goods' %}"></i>
+         {% endif %}
+         {% if b.includes_territory %}
+         <i class="fa fa-flag" title="{% trans 'Territory' %}"></i>
+         {% endif %}
+        </td>
+       </tr>
+        <tr>
+         <td colspan="12" class="hiddenRow">
+          <div class="accordian-body collapse" id="holder_bond_detail_{{ b.pk }}">
+          <small>
+           <table class="table table-hover">
+            </thead>
+             <tr>
+              <th></th>
+              <th>Payment</th>
+             </tr>
+            </thead>
+            <tbody>
+             {% if b.includes_currency %}
+             <tr>
+              <th>{% trans 'Currency:' %}</th>
+              <td>{{ b.resources.currency }}</td>
+             </tr>
+             {% endif %}
+             {% if b.includes_manufactured %}
+             <tr>
+              <th>{% trans 'Manufactured Goods:' %}</th>
+              <td>{{ b.resources.manufactured }}</td>
+             </tr>
+             {% endif %}
+             {% if b.includes_agricultural %}
+             <tr>
+              <th>{% trans 'Agricultural Goods:' %}</th>
+              <td>{{ b.resources.agricultural }}</td>
+             </tr>
+             {% endif %}
+             {% if b.includes_territory %}
+             <tr>
+              <th>{% trans 'Territory:' %}</th>
+              <td>{% if b.territory %}{{ b.territory.name }} ({{ b.territory.owner }}){% endif %}</td>
+             </tr>
+             {% endif %}
+            </tbody>
+           </table>
+          </small>
+          {% if b.get_creation_date %}
+           {% to_game_date b.get_creation_date as offerdate %}
+           <p>
+            {% trans 'Created in ' %}{{ offerdate|date:"M d, Y" }}{% if b.is_paid %}{% to_game_date b.get_payment_date as answerdate %}{% trans ', paid in ' %}{{ answerdate|date:"M d, Y" }}{% endif %}{% if b.is_forgiven %}{% trans ', but it has been forgiven.' %}{% endif %}.
+           </p>
+          {% endif %}
+          {% if b.is_pending %}
+          <form action="{% url 'game:update_bond' b.pk %}" method="post" role="form">
+           {% csrf_token %}
+           <button type="submit" name="forgive" class="btn btn-round btn-warning btn-xs">{% trans 'Forgive' %}</button>
+          </form>
+          {% endif %}
+          </div>
+         </td>
+        </tr>
+       {% endfor %}
+      </tbody>
+     </table>
+   </div>
+  </div>
+ </div>
+</div>
+{% endblock %}
+
+{% block append_script %}
+<script src="{% static 'game/js/bootstrap-list-filter.min.js' %}"></script>
+<script src="{% static 'game/js/knob/jquery.knob.min.js' %}"></script>
+<script src="{% static 'game/js/icheck.min.js' %}"></script>
+<script src="{% static 'game/js/jquery.sparklinb.min.js' %}"></script>
+<script>
+$('#searchlist').btsListFilter('#searchinput', {itemChild: 'span'});
+
+function newbond() {
+  $('#new_bond_tooltip').mouseout();
+  $('#new_bond_panel').show();
+  $('#new_bond_btn').hide();
+}
+
+$('#bond_with_player_collapse_btn').click();
+
+$('#filter_bonds').click(function() {
+ var opts = '';
+ if ($('input[name="filter_opts_pending"]').filter(':checked').val()) {
+  opts += 'W';
+ }
+ if ($('input[name="filter_opts_paid"]').filter(':checked').val()) {
+  opts += 'P';
+ }
+ if ($('input[name="filter_opts_forgiven"]').filter(':checked').val()) {
+  opts += 'F';
+ }
+ document.location = "{% url 'game:filter_bonds_without_opts'  %}" + opts;
+});
+
+</script>
+{% endblock %}
