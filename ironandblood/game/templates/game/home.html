@@ -15,6 +15,15 @@
    </div>
    <div class="x_content">
     <div id="world-map" style="width: 600px; height: 400px"></div>
+    <table class="tile_info">
+    {% for user, color in colors_legend.items %}
+    <tr>
+     <td>
+      <p><i class="fa fa-square" style="color: {{ color }}"></i>{{ user }}</p>
+     </td>
+    </tr>
+    {% endfor %}
+    </table>
    </div>
   </div>
  </div>

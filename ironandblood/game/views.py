@@ -82,11 +82,15 @@ def new_exchange(request, offeree):
 @login_required(login_url='game:login')
 def home(request):
   territories = Territory.objects.all()
+  users = User.objects.all()
   colors = ['#659BA3', '#725E54', '#FFEBB5', '#996982', '#01704B']
   dct = dict()
   for t in territories:
-    dct[t.code] = colors[t.pk % len(colors)]
-  return render(request, 'game/home.html', {'colors': dct})
+    dct[t.code] = colors[t.owner.pk % len(colors)]
+  user_legend = dict()
+  for u in users:
+    user_legend[u.username] = colors[u.pk % len(colors)]
+  return render(request, 'game/home.html', {'colors': dct, 'colors_legend': user_legend})
 
 @login_required(login_url='login')
 def logout_view(request):
