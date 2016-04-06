@@ -183,11 +183,17 @@
               <td>{% if e.offeree_bond %}{% trans 'Bond' %} #{{ e.offeree_bond.pk }}{% endif %}</td>
               <td>{% if e.offeror_bond %}{% trans 'Bond' %} #{{ e.offeror_bond.pk }}{% endif %}</td>
              </tr>
-
-              {% endif %}
               {% if e.offeree_bond %}
                <tr>
                 <th>{% trans 'Details of Bond' %} #{{ e.offeree_bond.pk }}</th>
+                <td></td>
+                <td></td>
+               </tr>
+               <tr>
+                <td>
+                 {% trans 'Holder' %}:
+                 {{ e.offeree_bond.holder }}
+                </td>
                 <td></td>
                 <td></td>
                </tr>
@@ -259,6 +265,14 @@
                </tr>
                <tr>
                 <td>
+                 {% trans 'Holder' %}:
+                 {{ e.offeror_bond.holder }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               <tr>
+                <td>
                  {% trans 'Status' %}:
                  {% if e.offeror_bond.is_pending %}
                  <span class="label label-primary">{% trans 'Pending' %}</span>
@@ -316,6 +330,7 @@
                 <td></td>
                </tr>
                {% endif %}
+              {% endif %}
              {% endif %}
             </tbody>
            </table>
@@ -488,6 +503,14 @@
                </tr>
                <tr>
                 <td>
+                 {% trans 'Holder' %}:
+                 {{ e.offeror_bond.holder }}
+                </td>
+                <td></td>
+                <td></td>
+               </tr>
+               <tr>
+                <td>
                  {% trans 'Status' %}:
                  {% if e.offeror_bond.is_pending %}
                  <span class="label label-primary">{% trans 'Pending' %}</span>
@@ -549,6 +572,14 @@
               {% if e.offeree_bond %}
                <tr>
                 <th>{% trans 'Details of Bond' %} #{{ e.offeree_bond.pk }}</th>
+                <td></td>
+                <td></td>
+               </tr>
+               <tr>
+                <td>
+                 {% trans 'Holder' %}:
+                 {{ e.offeree_bond.holder }}
+                </td>
                 <td></td>
                 <td></td>
                </tr>
