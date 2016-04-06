@@ -91,19 +91,19 @@
         </td>
         <td>
          {% if e.includes_currency %}
-         <i class="fa fa-money" placeholder="text"></i>
+         <i class="fa fa-money" title="Currency"></i>
          {% endif %}
          {% if e.includes_agricultural %}
-         <i class="fa fa-tree" placeholder="text"></i>
+         <i class="fa fa-tree" title="Agricultural"></i>
          {% endif %}
          {% if e.includes_manufactured %}
-         <i class="fa fa-gears" placeholder="text"></i>
+         <i class="fa fa-gears" title="Manufactured"></i>
          {% endif %}
          {% if e.includes_territories %}
-         <i class="fa fa-flag" placeholder="text"></i>
+         <i class="fa fa-flag" title="Territory"></i>
          {% endif %}
          {% if e.includes_bonds %}
-         <i class="fa fa-chain" placeholder="text"></i>
+         <i class="fa fa-chain" title="Bond"></i>
          {% endif %}
         </td>
        </tr>
@@ -123,36 +123,36 @@
              {% if e.includes_currency %}
              <tr>
               <th>{% trans 'Currency:' %}</th>
-              <td>{{ e.offeror_resources.currency }}</td>
               <td>{{ e.offeree_resources.currency }}</td>
+              <td>{{ e.offeror_resources.currency }}</td>
              </tr>
              {% endif %}
              {% if e.includes_manufactured %}
              <tr>
               <th>{% trans 'Manufactured Goods:' %}</th>
-              <td>{{ e.offeror_resources.manufactured }}</td>
               <td>{{ e.offeree_resources.manufactured }}</td>
+              <td>{{ e.offeror_resources.manufactured }}</td>
              </tr>
              {% endif %}
              {% if e.includes_agricultural %}
              <tr>
               <th>{% trans 'Agricultural Goods:' %}</th>
-              <td>{{ e.offeror_resources.agricultural }}</td>
               <td>{{ e.offeree_resources.agricultural }}</td>
+              <td>{{ e.offeror_resources.agricultural }}</td>
              </tr>
              {% endif %}
              {% if e.includes_territories %}
              <tr>
               <th>{% trans 'Territory:' %}</th>
+              <td>{% if e.offeree_territory %}{{ e.offeree_territory.name }} ({{ e.offeree_territory.owner.username }}){% endif %}</td>
               <td>{% if e.offeror_territory %}{{ e.offeror_territory.name }} ({{ e.offeror_territory.owner.username }}){% endif %}</td>
-              <td>{% if e.offeree_territory %}{{ e.offeree_territory.name }} ({{ e.offeror_territory.owner.username }}){% endif %}</td>
              </tr>
              {% endif %}
              {% if e.includes_bonds %}
              <tr>
               <th>{% trans 'Bond:' %}</th>
+              <td>{% if e.offeree_bond %}{{ e.offeree_bond.pk }} ({{ e.offeree_bond.pk }}){% endif %}</td>
               <td>{% if e.offeror_bond %}{{ e.offeror_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
-              <td>{% if e.offeree_bond %}{{ e.offeree_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
              </tr>
              {% endif %}
             </tbody>
@@ -290,14 +290,14 @@
              <tr>
               <th>{% trans 'Territory:' %}</th>
               <td>{% if e.offeror_territory %}{{ e.offeror_territory.name }} ({{ e.offeror_territory.owner.username }}){% endif %}</td>
-              <td>{% if e.offeree_territory %}{{ e.offeree_territory.name }} ({{ e.offeror_territory.owner.username }}){% endif %}</td>
+              <td>{% if e.offeree_territory %}{{ e.offeree_territory.name }} ({{ e.offeree_territory.owner.username }}){% endif %}</td>
              </tr>
              {% endif %}
              {% if e.includes_bonds %}
              <tr>
               <th>{% trans 'Bond:' %}</th>
               <td>{% if e.offeror_bond %}{{ e.offeror_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
-              <td>{% if e.offeree_bond %}{{ e.offeree_bond.pk }} ({{ e.offeror_bond.pk }}){% endif %}</td>
+              <td>{% if e.offeree_bond %}{{ e.offeree_bond.pk }} ({{ e.offeree_bond.pk }}){% endif %}</td>
              </tr>
              {% endif %}
             </tbody>
