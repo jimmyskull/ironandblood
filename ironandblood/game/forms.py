@@ -46,18 +46,18 @@ class ExchangeForm(forms.Form):
     resource = lambda u, name: getattr(u.player.resources, name)
 
     self.update('offeror_currency', 'data-max',
-      min(resource(offeror, 'currency'), 100) * 10)
+      max(resource(offeror, 'currency'), 10) * 10)
     self.update('offeree_currency', 'data-max', resource(offeree, 'currency'))
 
     self.update('offeror_manufactured', 'data-max',
-      min(resource(offeror, 'manufactured'), 10) * 10)
+      max(resource(offeror, 'manufactured'), 10) * 10)
     self.update('offeree_manufactured', 'data-max',
-      min(resource(offeree, 'manufactured'), 10) * 10)
+      max(resource(offeree, 'manufactured'), 10) * 10)
 
     self.update('offeror_agricultural', 'data-max',
-      min(resource(offeror, 'agricultural'), 10) * 10)
+      max(resource(offeror, 'agricultural'), 10) * 10)
     self.update('offeree_agricultural', 'data-max',
-      min(resource(offeree, 'agricultural'), 10) * 10)
+      max(resource(offeree, 'agricultural'), 10) * 10)
 
   def update(self, field_name, attr, value):
     self.fields[field_name].widget.attrs[attr] = value
