@@ -28,8 +28,10 @@
        <input class="form-control" id="searchinput" type="search" placeholder="Search player…">
       </div>
       <div id="searchlist" class="list-group">
-       {% for u in users %}
-        <a class="list-group-item" href="{% url 'game:exchange' u %}"><span>{{ u }}</span></a>
+       {% for usr in users %}
+        {% ifnotequal usr request.user %}
+        <a class="list-group-item" href="{% url 'game:exchange' usr %}"><span>{{ usr }}</span></a>
+        {% endifnotequal %}
        {% endfor %}
       </div>
     </form>
