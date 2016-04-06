@@ -105,877 +105,994 @@
     }
   },
   {
+    "model": "game.territory",
     "fields": {
-      "land_area": 312,
       "owner": 1,
-      "name": "Hjørring"
-    },
-    "pk": 1,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 317,
-      "owner": 1,
-      "name": "Brønderslev"
-    },
-    "pk": 2,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 863,
-      "owner": 1,
-      "name": "Jammerbugt"
-    },
-    "pk": 3,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 561,
-      "owner": 1,
-      "name": "Aalborg"
-    },
-    "pk": 4,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 789,
-      "owner": 1,
-      "name": "Vesthimmerlands"
-    },
-    "pk": 5,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 628,
-      "owner": 1,
-      "name": "Rebild"
-    },
-    "pk": 6,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 769,
-      "owner": 1,
-      "name": "Mariagerfjord"
-    },
-    "pk": 7,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 564,
-      "owner": 1,
-      "name": "Thisted"
-    },
-    "pk": 8,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 312,
-      "owner": 1,
-      "name": "Viborg"
-    },
-    "pk": 9,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 154,
-      "owner": 1,
-      "name": "Randers"
-    },
-    "pk": 10,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 231,
-      "owner": 1,
-      "name": "Skive"
-    },
-    "pk": 11,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 368,
-      "owner": 1,
-      "name": "Morsø"
-    },
-    "pk": 12,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 175,
-      "owner": 1,
-      "name": "Struer"
-    },
-    "pk": 13,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 466,
-      "owner": 1,
-      "name": "Lemvig"
-    },
-    "pk": 14,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 351,
-      "owner": 1,
-      "name": "Holstebro"
-    },
-    "pk": 15,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 578,
-      "owner": 1,
-      "name": "Ringkøbing-Skjern"
-    },
-    "pk": 16,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 542,
-      "owner": 1,
-      "name": "Herning"
-    },
-    "pk": 17,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 734,
-      "owner": 1,
-      "name": "Ikast-Brande"
-    },
-    "pk": 18,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 256,
-      "owner": 1,
-      "name": "Silkeborg"
-    },
-    "pk": 19,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 541,
-      "owner": 1,
-      "name": "Favrskov"
-    },
-    "pk": 20,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 724,
-      "owner": 1,
-      "name": "Norddjurs"
-    },
-    "pk": 21,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 697,
-      "owner": 1,
-      "name": "Syddjurs"
-    },
-    "pk": 22,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 268,
-      "owner": 1,
-      "name": "Aarhus"
-    },
-    "pk": 23,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 144,
-      "owner": 1,
-      "name": "Skanderborg"
-    },
-    "pk": 24,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 542,
-      "owner": 2,
-      "name": "Horsens"
-    },
-    "pk": 25,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 225,
-      "owner": 2,
-      "name": "Odder"
-    },
-    "pk": 26,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 138,
-      "owner": 2,
-      "name": "Hedensted"
-    },
-    "pk": 27,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 144,
-      "owner": 2,
-      "name": "Vejle"
-    },
-    "pk": 28,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 155,
-      "owner": 2,
-      "name": "Billund"
-    },
-    "pk": 29,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 251,
-      "owner": 2,
-      "name": "Varde"
-    },
-    "pk": 30,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 221,
-      "owner": 2,
-      "name": "Esbjerg"
-    },
-    "pk": 31,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 56,
-      "owner": 2,
-      "name": "Fanø"
-    },
-    "pk": 32,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 244,
-      "owner": 2,
-      "name": "Vejen"
-    },
-    "pk": 33,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 239,
-      "owner": 2,
-      "name": "Kolding"
-    },
-    "pk": 34,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 272,
-      "owner": 2,
-      "name": "Haderslev"
-    },
-    "pk": 35,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 135,
-      "owner": 2,
-      "name": "Fredericia"
-    },
-    "pk": 36,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 185,
-      "owner": 2,
-      "name": "Tønder"
-    },
-    "pk": 37,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 173,
-      "owner": 2,
+      "code": "DK.SD.AA",
+      "land_area": 941,
       "name": "Aabenraa"
     },
-    "pk": 38,
-    "model": "game.territory"
+    "pk": 1
   },
   {
+    "model": "game.territory",
     "fields": {
-      "land_area": 149,
       "owner": 2,
-      "name": "Sønderborg"
+      "code": "DK.ND.AA",
+      "land_area": 561,
+      "name": "Aalborg"
     },
-    "pk": 39,
-    "model": "game.territory"
+    "pk": 2
   },
   {
+    "model": "game.territory",
     "fields": {
-      "land_area": 153,
       "owner": 2,
-      "name": "Middelfart"
+      "code": "DK.MJ.AR",
+      "land_area": 268,
+      "name": "Århus"
     },
-    "pk": 40,
-    "model": "game.territory"
+    "pk": 3
   },
   {
+    "model": "game.territory",
     "fields": {
-      "land_area": 130,
-      "owner": 2,
-      "name": "Assens"
-    },
-    "pk": 41,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 200,
-      "owner": 2,
-      "name": "Nordfyns"
-    },
-    "pk": 42,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 179,
-      "owner": 2,
-      "name": "Odense"
-    },
-    "pk": 43,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 174,
-      "owner": 2,
-      "name": "Kerteminde"
-    },
-    "pk": 44,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 153,
-      "owner": 2,
-      "name": "Faaborg-Midtfyn"
-    },
-    "pk": 45,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 171,
-      "owner": 2,
-      "name": "Nyborg"
-    },
-    "pk": 46,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 162,
-      "owner": 2,
-      "name": "Svendborg"
-    },
-    "pk": 47,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 182,
-      "owner": 2,
+      "owner": 1,
+      "code": "DK.SD.AE",
+      "land_area": 88,
       "name": "Ærø"
     },
-    "pk": 48,
-    "model": "game.territory"
+    "pk": 4
   },
   {
+    "model": "game.territory",
     "fields": {
-      "land_area": 162,
       "owner": 3,
-      "name": "Langeland"
-    },
-    "pk": 49,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 107,
-      "owner": 3,
-      "name": "Lolland"
-    },
-    "pk": 50,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 141,
-      "owner": 3,
-      "name": "Guldborgsund"
-    },
-    "pk": 51,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 111,
-      "owner": 3,
-      "name": "Vordingborg"
-    },
-    "pk": 52,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 168,
-      "owner": 3,
-      "name": "Næstved"
-    },
-    "pk": 53,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 167,
-      "owner": 3,
-      "name": "Faxe"
-    },
-    "pk": 54,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 190,
-      "owner": 3,
-      "name": "Ringsted"
-    },
-    "pk": 55,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 116,
-      "owner": 3,
-      "name": "Stevns"
-    },
-    "pk": 56,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 167,
-      "owner": 3,
-      "name": "Slagelse"
-    },
-    "pk": 57,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 125,
-      "owner": 3,
-      "name": "Sorø"
-    },
-    "pk": 58,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 105,
-      "owner": 3,
-      "name": "Køge"
-    },
-    "pk": 59,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 188,
-      "owner": 3,
-      "name": "Kalundborg"
-    },
-    "pk": 60,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 198,
-      "owner": 3,
-      "name": "Holbæk"
-    },
-    "pk": 61,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 117,
-      "owner": 3,
-      "name": "Lejre"
-    },
-    "pk": 62,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 183,
-      "owner": 3,
-      "name": "Roskilde"
-    },
-    "pk": 63,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 170,
-      "owner": 3,
-      "name": "Solrød"
-    },
-    "pk": 64,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 150,
-      "owner": 3,
-      "name": "Høje-Taastrup"
-    },
-    "pk": 65,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 102,
-      "owner": 3,
-      "name": "Ishøj"
-    },
-    "pk": 66,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 121,
-      "owner": 3,
-      "name": "Vallensbæk"
-    },
-    "pk": 67,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 152,
-      "owner": 3,
+      "code": "DK.HS.AB",
+      "land_area": 23,
       "name": "Albertslund"
     },
-    "pk": 68,
-    "model": "game.territory"
+    "pk": 5
   },
   {
+    "model": "game.territory",
     "fields": {
-      "land_area": 196,
       "owner": 3,
-      "name": "Brøndby"
-    },
-    "pk": 69,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 163,
-      "owner": 3,
-      "name": "Glostrup"
-    },
-    "pk": 70,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 137,
-      "owner": 3,
-      "name": "Ballerup"
-    },
-    "pk": 71,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 172,
-      "owner": 3,
-      "name": "Hvidovre"
-    },
-    "pk": 72,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 136,
-      "owner": 4,
-      "name": "Rødovre"
-    },
-    "pk": 73,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 127,
-      "owner": 4,
-      "name": "København"
-    },
-    "pk": 74,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 113,
-      "owner": 4,
-      "name": "Frederiksberg"
-    },
-    "pk": 75,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 157,
-      "owner": 4,
-      "name": "Tårnby"
-    },
-    "pk": 76,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 165,
-      "owner": 4,
-      "name": "Dragør"
-    },
-    "pk": 77,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 132,
-      "owner": 4,
-      "name": "Herlev"
-    },
-    "pk": 78,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 181,
-      "owner": 4,
-      "name": "Ballerup"
-    },
-    "pk": 79,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 125,
-      "owner": 4,
-      "name": "Egedal"
-    },
-    "pk": 80,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 103,
-      "owner": 4,
-      "name": "Frederikssund"
-    },
-    "pk": 81,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 158,
-      "owner": 4,
-      "name": "Halsnæs"
-    },
-    "pk": 82,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 104,
-      "owner": 4,
-      "name": "Hillerød"
-    },
-    "pk": 83,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 188,
-      "owner": 4,
-      "name": "Gribskov"
-    },
-    "pk": 84,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 200,
-      "owner": 4,
-      "name": "Helsingør"
-    },
-    "pk": 85,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 111,
-      "owner": 4,
-      "name": "Fredensborg"
-    },
-    "pk": 86,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 194,
-      "owner": 4,
+      "code": "DK.HS.AL",
+      "land_area": 67,
       "name": "Allerød"
     },
-    "pk": 87,
-    "model": "game.territory"
+    "pk": 6
   },
   {
+    "model": "game.territory",
     "fields": {
-      "land_area": 166,
-      "owner": 4,
-      "name": "Furesø"
-    },
-    "pk": 88,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 169,
-      "owner": 4,
-      "name": "Gladsaxe"
-    },
-    "pk": 89,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 164,
-      "owner": 4,
-      "name": "Gentofte"
-    },
-    "pk": 90,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 178,
-      "owner": 4,
-      "name": "Rudersdal"
-    },
-    "pk": 91,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 181,
-      "owner": 4,
-      "name": "Hørsholm"
-    },
-    "pk": 92,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 189,
-      "owner": 4,
-      "name": "Lyngby-Taarbæk"
-    },
-    "pk": 93,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 143,
-      "owner": 4,
-      "name": "Samsø"
-    },
-    "pk": 94,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 176,
-      "owner": 4,
-      "name": "Norddjurs"
-    },
-    "pk": 95,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 103,
-      "owner": 4,
-      "name": "Læsø"
-    },
-    "pk": 96,
-    "model": "game.territory"
-  },
-  {
-    "fields": {
-      "land_area": 180,
       "owner": 1,
+      "code": "DK.SD.AS",
+      "land_area": 513,
+      "name": "Assens"
+    },
+    "pk": 7
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.BA",
+      "land_area": 34,
+      "name": "Ballerup"
+    },
+    "pk": 8
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.SD.BI",
+      "land_area": 155,
+      "name": "Billund"
+    },
+    "pk": 9
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.BO",
+      "land_area": 588,
+      "name": "Bornholm"
+    },
+    "pk": 10
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.BR",
+      "land_area": 28,
+      "name": "Brøndby"
+    },
+    "pk": 11
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.ND.BD",
+      "land_area": 317,
+      "name": "Brønderslev"
+    },
+    "pk": 12
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.CH",
+      "land_area": 1,
+      "name": "Christiansø"
+    },
+    "pk": 13
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.DR",
+      "land_area": 18,
+      "name": "Dragør"
+    },
+    "pk": 14
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.EG",
+      "land_area": 125,
+      "name": "Egedal"
+    },
+    "pk": 15
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.ES",
+      "land_area": 221,
+      "name": "Esbjerg"
+    },
+    "pk": 16
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.FM",
+      "land_area": 51,
+      "name": "Faaborg-Midtfyn"
+    },
+    "pk": 17
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.FA",
+      "land_area": 56,
+      "name": "Fanø"
+    },
+    "pk": 18
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.MJ.FA",
+      "land_area": 541,
+      "name": "Favrskov"
+    },
+    "pk": 19
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.FA",
+      "land_area": 404,
+      "name": "Faxe"
+    },
+    "pk": 20
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.FN",
+      "land_area": 112,
+      "name": "Fredensborg"
+    },
+    "pk": 21
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.FR",
+      "land_area": 135,
+      "name": "Fredericia"
+    },
+    "pk": 22
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.FB",
+      "land_area": 9,
+      "name": "Frederiksberg"
+    },
+    "pk": 23
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.ND.FR",
+      "land_area": 180,
       "name": "Frederikshavn"
     },
-    "pk": 97,
-    "model": "game.territory"
+    "pk": 24
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.FS",
+      "land_area": 250,
+      "name": "Frederikssund"
+    },
+    "pk": 25
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.FU",
+      "land_area": 56,
+      "name": "Furesø"
+    },
+    "pk": 26
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.GE",
+      "land_area": 26,
+      "name": "Gentofte"
+    },
+    "pk": 27
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.GX",
+      "land_area": 25,
+      "name": "Gladsaxe"
+    },
+    "pk": 28
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.GP",
+      "land_area": 13,
+      "name": "Glostrup"
+    },
+    "pk": 29
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.GR",
+      "land_area": 60,
+      "name": "Greve"
+    },
+    "pk": 30
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.GR",
+      "land_area": 56,
+      "name": "Gribskov"
+    },
+    "pk": 31
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SL.GU",
+      "land_area": 903,
+      "name": "Guldborgsund"
+    },
+    "pk": 32
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.HA",
+      "land_area": 272,
+      "name": "Haderslev"
+    },
+    "pk": 33
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.FH",
+      "land_area": 122,
+      "name": "Halsnæs"
+    },
+    "pk": 34
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.MJ.HD",
+      "land_area": 138,
+      "name": "Hedensted"
+    },
+    "pk": 35
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.HG",
+      "land_area": 122,
+      "name": "Helsingør"
+    },
+    "pk": 36
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.HV",
+      "land_area": 12,
+      "name": "Herlev"
+    },
+    "pk": 37
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.MJ.HG",
+      "land_area": 542,
+      "name": "Herning"
+    },
+    "pk": 38
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.HI",
+      "land_area": 213,
+      "name": "Hillerød"
+    },
+    "pk": 39
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.ND.HJ",
+      "land_area": 312,
+      "name": "Hjørring"
+    },
+    "pk": 40
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.HT",
+      "land_area": 78,
+      "name": "Høje-Taastrup"
+    },
+    "pk": 41
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.HO",
+      "land_area": 579,
+      "name": "Holbæk"
+    },
+    "pk": 42
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.MJ.HB",
+      "land_area": 351,
+      "name": "Holstebro"
+    },
+    "pk": 43
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.MJ.HS",
+      "land_area": 542,
+      "name": "Horsens"
+    },
+    "pk": 44
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.HO",
+      "land_area": 31,
+      "name": "Hørsholm"
+    },
+    "pk": 45
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.HD",
+      "land_area": 25,
+      "name": "Hvidovre"
+    },
+    "pk": 46
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.MJ.IB",
+      "land_area": 734,
+      "name": "Ikast-Brande"
+    },
+    "pk": 47
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.IS",
+      "land_area": 26,
+      "name": "Ishøj"
+    },
+    "pk": 48
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.ND.JA",
+      "land_area": 863,
+      "name": "Jammerbugt"
+    },
+    "pk": 49
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.KA",
+      "land_area": 604,
+      "name": "Kalundborg"
+    },
+    "pk": 50
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.KE",
+      "land_area": 203,
+      "name": "Kerteminde"
+    },
+    "pk": 51
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.KO",
+      "land_area": 88,
+      "name": "København"
+    },
+    "pk": 52
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.KO",
+      "land_area": 256,
+      "name": "Køge"
+    },
+    "pk": 53
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.KO",
+      "land_area": 239,
+      "name": "Kolding"
+    },
+    "pk": 54
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.ND.LA",
+      "land_area": 101,
+      "name": "Læsø"
+    },
+    "pk": 55
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.LA",
+      "land_area": 285,
+      "name": "Langeland"
+    },
+    "pk": 56
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.LE",
+      "land_area": 240,
+      "name": "Lejre"
+    },
+    "pk": 57
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.MJ.LE",
+      "land_area": 466,
+      "name": "Lemvig"
+    },
+    "pk": 58
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SL.LO",
+      "land_area": 1243,
+      "name": "Lolland"
+    },
+    "pk": 59
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.LT",
+      "land_area": 39,
+      "name": "Lyngby-Taarbæk"
+    },
+    "pk": 60
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.ND.MF",
+      "land_area": 769,
+      "name": "Mariagerfjord"
+    },
+    "pk": 61
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.MI",
+      "land_area": 300,
+      "name": "Middelfart"
+    },
+    "pk": 62
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.ND.MO",
+      "land_area": 368,
+      "name": "Morsø"
+    },
+    "pk": 63
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.NA",
+      "land_area": 681,
+      "name": "Næstved"
+    },
+    "pk": 64
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.MJ.NO",
+      "land_area": 724,
+      "name": "Norddjurs"
+    },
+    "pk": 65
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.BO",
+      "land_area": 452,
+      "name": "Nordfyns"
+    },
+    "pk": 66
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.NY",
+      "land_area": 278,
+      "name": "Nyborg"
+    },
+    "pk": 67
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.MJ.OD",
+      "land_area": 225,
+      "name": "Odder"
+    },
+    "pk": 68
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.OD",
+      "land_area": 304,
+      "name": "Odense"
+    },
+    "pk": 69
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.OD",
+      "land_area": 355,
+      "name": "Odsherred"
+    },
+    "pk": 70
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.MJ.RA",
+      "land_area": 154,
+      "name": "Randers"
+    },
+    "pk": 71
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.ND.RE",
+      "land_area": 628,
+      "name": "Rebild"
+    },
+    "pk": 72
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.MJ.RS",
+      "land_area": 578,
+      "name": "Ringkøbing-Skjern"
+    },
+    "pk": 73
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.RI",
+      "land_area": 296,
+      "name": "Ringsted"
+    },
+    "pk": 74
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.RO",
+      "land_area": 12,
+      "name": "Rødovre"
+    },
+    "pk": 75
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.RO",
+      "land_area": 212,
+      "name": "Roskilde"
+    },
+    "pk": 76
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.RU",
+      "land_area": 74,
+      "name": "Rudersdal"
+    },
+    "pk": 77
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.MJ.SA",
+      "land_area": 114,
+      "name": "Samsø"
+    },
+    "pk": 78
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.MJ.SI",
+      "land_area": 256,
+      "name": "Silkeborg"
+    },
+    "pk": 79
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.MJ.SD",
+      "land_area": 144,
+      "name": "Skanderborg"
+    },
+    "pk": 80
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.MJ.SV",
+      "land_area": 231,
+      "name": "Skive"
+    },
+    "pk": 81
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.SL",
+      "land_area": 567,
+      "name": "Slagelse"
+    },
+    "pk": 82
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.SD",
+      "land_area": 40,
+      "name": "Solrød"
+    },
+    "pk": 83
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.SO",
+      "land_area": 497,
+      "name": "Sønderborg"
+    },
+    "pk": 84
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.SO",
+      "land_area": 311,
+      "name": "Sorø"
+    },
+    "pk": 85
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.ST",
+      "land_area": 250,
+      "name": "Stevns"
+    },
+    "pk": 86
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.MJ.ST",
+      "land_area": 175,
+      "name": "Struer"
+    },
+    "pk": 87
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.SV",
+      "land_area": 418,
+      "name": "Svendborg"
+    },
+    "pk": 88
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.MJ.SY",
+      "land_area": 697,
+      "name": "Syddjurs"
+    },
+    "pk": 89
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.TA",
+      "land_area": 65,
+      "name": "Tårnby"
+    },
+    "pk": 90
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.ND.TH",
+      "land_area": 564,
+      "name": "Thisted"
+    },
+    "pk": 91
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.TO",
+      "land_area": 185,
+      "name": "Tønder"
+    },
+    "pk": 92
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.HS.VA",
+      "land_area": 10,
+      "name": "Vallensbæk"
+    },
+    "pk": 93
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.SD.VA",
+      "land_area": 251,
+      "name": "Varde"
+    },
+    "pk": 94
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 1,
+      "code": "DK.SD.VN",
+      "land_area": 244,
+      "name": "Vejen"
+    },
+    "pk": 95
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 2,
+      "code": "DK.SD.VL",
+      "land_area": 144,
+      "name": "Vejle"
+    },
+    "pk": 96
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.ND.VE",
+      "land_area": 789,
+      "name": "Vesthimmerlands"
+    },
+    "pk": 97
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 4,
+      "code": "DK.MJ.VI",
+      "land_area": 312,
+      "name": "Viborg"
+    },
+    "pk": 98
+  },
+  {
+    "model": "game.territory",
+    "fields": {
+      "owner": 3,
+      "code": "DK.SL.VO",
+      "land_area": 615,
+      "name": "Vordingborg"
+    },
+    "pk": 99
   },
 {"model": "game.resources",
 "pk": 1,

@@ -159,6 +159,7 @@ class Player(models.Model):
 class Territory(models.Model):
   """Territory information"""
   owner = models.ForeignKey(User, null=True, blank=True)
+  code = models.CharField(max_length=16, blank=False)
   name = models.CharField(max_length=32, blank=False)
   land_area = models.IntegerField('Land area', default=100)
 

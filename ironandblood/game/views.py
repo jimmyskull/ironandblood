@@ -81,7 +81,12 @@ def new_exchange(request, offeree):
 
 @login_required(login_url='game:login')
 def home(request):
-  return render(request, 'game/home.html', {})
+  territories = Territory.objects.all()
+  colors = ['#659BA3', '#725E54', '#FFEBB5', '#996982', '#01704B']
+  dct = dict()
+  for t in territories:
+    dct[t.code] = colors[t.pk % len(colors)]
+  return render(request, 'game/home.html', {'colors': dct})
 
 @login_required(login_url='login')
 def logout_view(request):
