@@ -37,8 +37,14 @@ class ExchangeForm(forms.Form):
   offeree_agricultural = forms.IntegerField(
     widget = KnobInput(color = Resources.color('agricultural')))
 
-  offeror_bond = forms.IntegerField(label = 'Negotiate Bond #', required=False)
-  offeree_bond = forms.IntegerField(required=False)
+  offeror_bond = forms.IntegerField(label = 'Bond #', required=False,
+    widget = forms.NumberInput(attrs = {
+      'style': 'width: 50px'
+    }))
+  offeree_bond = forms.IntegerField(required=False,
+    widget = forms.NumberInput(attrs = {
+      'style': 'width: 50px'
+    }))
 
   def __init__(self, offeror, offeree, *args, **kwargs):
     super(forms.Form, self).__init__(*args, **kwargs)
